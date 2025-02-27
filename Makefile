@@ -5,6 +5,7 @@ OBJDIR=./build/$(PLATFORM)
 SODIR=./so/$(PLATFORM)
 TESTDIR=./test/$(PLATFORM)
 SRCDIR = ./src
+
 ifeq ($(PLATFORM), windows)
     CC=x86_64-w64-mingw32-gcc
     CXX=x86_64-w64-mingw32-g++
@@ -23,6 +24,7 @@ else ifeq ($(PLATFORM), arm)
     CC=arm-linux-gnueabihf-gcc
     CXX=arm-linux-gnueabihf-g++
     CFLAGS += -DPLATFORM_LINUX
+    CFLAGS += -static-libstdc++
     SERIAL_SRC=serial_comm_linux.cpp
     SHARED_LIB_EXT=so
     BINARY_EXT= 

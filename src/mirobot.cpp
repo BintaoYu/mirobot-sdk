@@ -89,7 +89,7 @@ void Mirobot::get_time()
 }
 
 // 发送消息到Mirobot
-void Mirobot::send_msg(string msg, bool wait, int delay)
+string Mirobot::send_msg(string msg, bool wait, int delay)
 {
     dataflush();
     while (serial.dataAvailable())
@@ -97,12 +97,12 @@ void Mirobot::send_msg(string msg, bool wait, int delay)
     serial.writeData(msg);
     if (debug)
         printf("message sent: %s\n", msg.c_str());
-    // if (wait)
-    // {
-    //     cout << "waiting" << endl;
-    //     waitForEnd();
-    //     cout << read_status() << endl;
-    // }
+    if (wait)
+    {
+        cout << "waiting" << endl;
+        waitForEnd();
+        return read_status();
+    }
     sleep(delay);
 }
 
@@ -122,6 +122,7 @@ void Mirobot::dataflush()
     while (serial.dataAvailable())
     {
         serial.flush();
+        cout << "flush" << endl;
         sleep(1);
     }
 }

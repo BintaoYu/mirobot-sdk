@@ -51,21 +51,23 @@ void SerialComm::configurePort()
     // Set raw input and output mode
     options.c_lflag &= ~(ICANON | ECHO | ECHOE | ISIG); // Raw input
     options.c_oflag &= ~OPOST;                         // Raw output
-
+    options.c_cc[VTIME] = 0;
+    options.c_cc[VMIN] = 4;
+    
     // Apply the configuration immediately
     tcsetattr(fd, TCSANOW, &options);
 
-    // RS485 configuration
-    struct serial_rs485 rs485conf;
-    memset(&rs485conf, 0, sizeof(rs485conf));
+    // // RS485 configuration
+    // struct serial_rs485 rs485conf;
+    // memset(&rs485conf, 0, sizeof(rs485conf));
 
-    rs485conf.flags = SER_RS485_ENABLED | SER_RS485_RTS_ON_SEND;
-    rs485conf.delay_rts_before_send = 4;  // Delay before send (microseconds)
-    rs485conf.delay_rts_after_send = 4;   // Delay after send (microseconds)
+    // rs485conf.flags = SER_RS485_ENABLED | SER_RS485_RTS_ON_SEND;
+    // rs485conf.delay_rts_before_send = 4;  // Delay before send (microseconds)
+    // rs485conf.delay_rts_after_send = 4;   // Delay after send (microseconds)
 
-    if (ioctl(fd, TIOCSRS485, &rs485conf) < 0) {
-        std::cerr << "Error configuring RS485: " << strerror(errno) << std::endl;
-    }
+    // if (ioctl(fd, TIOCSRS485, &rs485conf) < 0) {
+    //     std::cerr << "Error configuring RS485: " << strerror(errno) << std::endl;
+    // }
 }
 
 void SerialComm::init()

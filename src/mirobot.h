@@ -88,12 +88,12 @@ private:
 public:
     Motion motiontype;
     MoveDirection movedirection;
-    Mirobot(int myport, bool mydebug = false, string mydevice = "/dev/ttymxc3");
+    Mirobot(int myport, bool mydebug = false, string mydevice = "/dev/ttyS2");
     string readline();
     string read_status();
     void get_time();
     //send a message
-    void send_msg(string msg, bool wait = false, int delay = 0);
+    string send_msg(string msg, bool wait = false, int delay = 0);
     void waitForEnd();
     void dataflush();
 
@@ -119,7 +119,7 @@ public:
 
     //回归零位
     //send all axes to their respective zero positions
-    void go_to_zero(int delay);
+    void go_to_zero(int delay = 0);
 
     //G1参数速度
     //G0最大速度
@@ -128,11 +128,11 @@ public:
 
     //移动到坐标位置
     //linear move to a cartesian position
-    void go_to_cartesian_lin(int m, double x, double y, double z, double a, double b, double c, int delay);
+    void go_to_cartesian_lin(int m, double x, double y, double z, double a, double b, double c, int delay = 0);
 
     //笛卡尔空间中的线性增量
     //linear increment in cartesian space
-    void increment_cartesian_lin(int m, double x, double y, double z, double a, double b, double c, int delay);
+    void increment_cartesian_lin(int m, double x, double y, double z, double a, double b, double c, int delay = 0);
 
     //吸盘开
     void suction_cup_on(int delay = 1);
@@ -169,7 +169,7 @@ public:
     void move_to_axis(int joint, int revolve, double n);
 
     //定向移动
-    void direction_mobility(int d, double n, int delay);
+    void direction_mobility(int d, double n, int delay = 0);
 
     //门型轨迹移动 只用于笛卡尔模式
     void jump_move(int m, double x, double y, double z, double a, double b, double c);
