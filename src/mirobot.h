@@ -93,7 +93,8 @@ public:
     string read_status();
     void get_time();
     //send a message
-    string send_msg(string msg, bool wait = false, int delay = 0);
+    void send_msg(string msg, bool wait = false, int delay = 0);
+    string camera_msg(string msg, bool wait = true, int delay = 0);
     void waitForEnd();
     void dataflush();
 

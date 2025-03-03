@@ -39,7 +39,7 @@ void Motor::set_speed(int speed) {
 }
 
 void Motor::load(int speed, int offset) {
-    string msg = "$N2=G06 F0" + to_string(offset);
+    string msg = "$N2=G06 F0";
     send_msg(msg, true);
     set_speed(speed);
 }

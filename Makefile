@@ -17,7 +17,7 @@ else ifeq ($(PLATFORM), linux)
     CC=gcc
     CXX=g++
     CFLAGS += -DPLATFORM_LINUX
-    SERIAL_SRC=serial_comm_linux.cpp
+    SERIAL_SRC=serial_comm_linux_TTL.cpp
     SHARED_LIB_EXT=so
     BINARY_EXT= 
 else ifeq ($(PLATFORM), arm)
