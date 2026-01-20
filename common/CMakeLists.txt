@@ -2,6 +2,7 @@
 
 add_library(common STATIC
     src/serial_comm.cpp
+    src/tcp_comm.cpp
 )
 
 target_include_directories(common PUBLIC

@@ -1,22 +1,18 @@
-#ifndef SERIAL_COMM_H
-#define SERIAL_COMM_H
+#pragma once
 
+#include "comm_interface.h"
 #include <string>
-#include <unistd.h>
 
-class SerialComm
-{
-public:
-    int fd;
-    SerialComm(std::string device, int myport);
-    ~SerialComm();
-    void init();
-    std::string readLine();
-    void writeData(const std::string &data);
-    bool dataAvailable();
-    void flush();
+class SerialComm : public CommInterface {
 private:
     std::string port;
     void configurePort();
+    int fd;
+public:
+    SerialComm(std::string port);
+    ~SerialComm();
+    void writeData(const std::string &data) override;
+    std::string readLine() override;
+    bool dataAvailable() override;
+    void flush();
 };
-#endif // SERIAL_COMM_H

@@ -53,9 +53,7 @@ void Motor::dataflush() {
     }
 }
 
-Motor::Motor(int myport, bool mydebug, string mydevice) : serial(mydevice, myport) {
+Motor::Motor(int myport, bool mydebug, string mydevice) : serial(mydevice) {
     debug = mydebug;
-    serial.init();
-    // waitForEnd();
     dataflush();
 }

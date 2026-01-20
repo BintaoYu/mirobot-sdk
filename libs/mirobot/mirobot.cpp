@@ -56,10 +56,9 @@ int translation(std::string instr, double data[])
 }
 
 // Mirobot构造函数
-Mirobot::Mirobot(int myport, bool mydebug, string mydevice) : serial(mydevice, myport)
+Mirobot::Mirobot(int myport, bool mydebug, string mydevice) : serial(mydevice)
 {
     debug = mydebug;
-    serial.init();
     dataflush();
 }
 
@@ -106,8 +105,7 @@ void Mirobot::send_msg(string msg, bool wait, int delay)
     sleep(delay);
 }
 
-string Mirobot::camera_msg(string msg, bool wait, int delay)
-{
+string Mirobot::camera_msg(string msg, bool wait, int delay) {
     dataflush();
     while (serial.dataAvailable())
         serial.flush();

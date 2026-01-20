@@ -3,12 +3,11 @@
 #include <termios.h>
 #include <iostream>
 #include <cstring>
-#include <unistd.h>
 #include <sys/ioctl.h>
+#include <unistd.h>
 
-SerialComm::SerialComm(std::string device, int baudRate) {
-    port = device;
-    fd = open(device.c_str(), O_RDWR | O_NOCTTY | O_SYNC);
+SerialComm::SerialComm(std::string port) : port(port), fd(-1) {
+    fd = open(port.c_str(), O_RDWR | O_NOCTTY | O_SYNC);
     if (fd < 0) {
         std::cerr << "Error opening serial port: " << strerror(errno) << std::endl;
         return;
@@ -17,11 +16,8 @@ SerialComm::SerialComm(std::string device, int baudRate) {
 }
 
 SerialComm::~SerialComm() {
-    close(fd);
-}
-
-void SerialComm::init() {
-    configurePort();
+    if (fd >= 0)
+        close(fd);
 }
 
 void SerialComm::configurePort() {
@@ -53,6 +49,13 @@ void SerialComm::configurePort() {
     }
 }
 
+void SerialComm::writeData(const std::string &data) {
+    int n = write(fd, data.c_str(), data.size());
+    if (n < 0) {
+        std::cerr << "Error writing to serial port: " << strerror(errno) << std::endl;
+    }
+}
+
 std::string SerialComm::readLine() {
     std::string result;
     char buf;
@@ -68,13 +71,6 @@ std::string SerialComm::readLine() {
         result += buf;
     }
     return result;
-}
-
-void SerialComm::writeData(const std::string &data) {
-    int n = write(fd, data.c_str(), data.size());
-    if (n < 0) {
-        std::cerr << "Error writing to serial port: " << strerror(errno) << std::endl;
-    }
 }
 
 bool SerialComm::dataAvailable() {
