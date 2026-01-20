@@ -79,7 +79,7 @@ class Mirobot
 {
 private:
     bool debug;
-    SerialComm serial;
+    CommInterface* comm;
     MoveMode movemode;
     RevolveDirection revolvedirection;
     MirobotJoint mirobotjoint;
@@ -88,15 +88,13 @@ private:
 public:
     Motion motiontype;
     MoveDirection movedirection;
-    Mirobot(int myport, bool mydebug = false, string mydevice = "/dev/ttyS2");
+    Mirobot(CommInterface* commPtr, int devicePort, bool debugFlag = false);
     string readline();
     string read_status();
     void get_time();
-    //send a message
     void send_msg(string msg, bool wait = false, int delay = 0);
     string camera_msg(string msg, bool wait = true, int delay = 0);
     void waitForEnd();
-    void dataflush();
 
     //每个轴复位
     //home each axis individually

@@ -20,9 +20,5 @@ include_directories(
 # Platform-specific sources
 set(PLATFORM_SRC ${CMAKE_SOURCE_DIR}/common/src/serial_comm.cpp)
 
-# Add shared libraries for each folder in libs
-add_library(motor SHARED ${CMAKE_SOURCE_DIR}/libs/motor/motor.cpp)
-add_library(mirobot SHARED ${CMAKE_SOURCE_DIR}/libs/mirobot/mirobot.cpp)
-
 target_include_directories(motor PRIVATE ${CMAKE_SOURCE_DIR}/common/include)
 target_include_directories(mirobot PRIVATE ${CMAKE_SOURCE_DIR}/common/include)

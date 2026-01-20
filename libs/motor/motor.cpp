@@ -3,15 +3,15 @@
 #include <iostream>
 #include <unistd.h>
 
+Motor::Motor(CommInterface* commPtr, int devicePort, bool debugFlag) : comm(commPtr), debug(debugFlag) {
+    if (commPtr == nullptr)
+        throw std::invalid_argument("CommInterface pointer cannot be null");
+}
+
 void Motor::send_msg(string msg, bool wait) {
-    dataflush();
-    while (serial.dataAvailable())
-        serial.flush();
-    serial.writeData(msg);
-    if (debug)
-        printf("Message sent: %s", msg.c_str());
-    if (wait)
-    {
+    comm->writeData(msg);
+    if (debug) printf("Message sent: %s", msg.c_str());
+    if (wait) {
         printf("Waiting to receive: %s", msg.c_str());
         waitForEnd();
         cout << read_status() << endl;
@@ -19,17 +19,17 @@ void Motor::send_msg(string msg, bool wait) {
 }
 
 string Motor::read_status() {
-    string read_status = "";
-    while (serial.dataAvailable())
-    {
-        read_status += serial.readLine();
+    string status = "";
+    while (comm->dataAvailable()){
+        status += comm->readLine();
     }
-    return read_status;
+    return status;
 }
 
 
 void Motor::waitForEnd() {
-    while (!serial.dataAvailable())
+    int timeout = 2000; // 2000 ms timeout
+    while (!comm->dataAvailable() && timeout-- > 0)
         usleep(1000);
 }
 
@@ -42,18 +42,4 @@ void Motor::load(int speed, int offset) {
     string msg = "$N2=G06 F0";
     send_msg(msg, true);
     set_speed(speed);
-}
-
-
-void Motor::dataflush() {
-    while (serial.dataAvailable())
-    {
-        serial.flush();
-        sleep(1);
-    }
-}
-
-Motor::Motor(int myport, bool mydebug, string mydevice) : serial(mydevice) {
-    debug = mydebug;
-    dataflush();
 }

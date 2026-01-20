@@ -56,19 +56,18 @@ int translation(std::string instr, double data[])
 }
 
 // Mirobot构造函数
-Mirobot::Mirobot(int myport, bool mydebug, string mydevice) : serial(mydevice)
-{
-    debug = mydebug;
-    dataflush();
+Mirobot::Mirobot(CommInterface* commPtr, int devicePort, bool debugFlag) : comm(commPtr), debug(debugFlag) {
+    if (commPtr == nullptr)
+        throw std::invalid_argument("CommInterface pointer cannot be null");
 }
 
 // 读取Mirobot状态
 string Mirobot::read_status()
 {
     string read_status = "";
-    while (serial.dataAvailable())
+    while (comm->dataAvailable())
     {
-        read_status += serial.readLine();
+        read_status += comm->readLine();
     }
     return read_status;
 }
@@ -76,7 +75,7 @@ string Mirobot::read_status()
 // 读取一行数据
 string Mirobot::readline()
 {
-    return serial.readLine();
+    return comm->readLine();
 }
 
 // 获取当前时间并格式化
@@ -90,10 +89,7 @@ void Mirobot::get_time()
 // 发送消息到Mirobot
 void Mirobot::send_msg(string msg, bool wait, int delay)
 {
-    dataflush();
-    while (serial.dataAvailable())
-        serial.flush();
-    serial.writeData(msg);
+    comm->writeData(msg);
     if (debug)
         printf("message sent: %s\n", msg.c_str());
     if (wait)
@@ -106,10 +102,7 @@ void Mirobot::send_msg(string msg, bool wait, int delay)
 }
 
 string Mirobot::camera_msg(string msg, bool wait, int delay) {
-    dataflush();
-    while (serial.dataAvailable())
-        serial.flush();
-    serial.writeData(msg);
+    comm->writeData(msg);
     if (debug)
         printf("message sent: %s\n", msg.c_str());
     if (wait)
@@ -124,21 +117,10 @@ string Mirobot::camera_msg(string msg, bool wait, int delay) {
 // 等待串口结束
 void Mirobot::waitForEnd()
 {
-    while (!serial.dataAvailable())
+    while (!comm->dataAvailable())
     {
         usleep(1000000);
         cout << "waiting" << endl;
-    }
-}
-
-// 刷新数据
-void Mirobot::dataflush()
-{
-    while (serial.dataAvailable())
-    {
-        serial.flush();
-        cout << "flush" << endl;
-        sleep(1);
     }
 }
 
@@ -408,7 +390,6 @@ void Mirobot::set_arc_move(int mode, int revolve, double x, double y, double z, 
 
 void Mirobot::get_status()
 {
-    dataflush();
     send_msg("?");
     waitForEnd();
     string readstr = read_status();
