@@ -31,23 +31,31 @@ TcpComm::~TcpComm() {
 
 void TcpComm::writeData(const std::string &data) {
     if (sock_fd < 0) return;
-    ssize_t n = send(sock_fd, data.c_str(), data.size(), 0);
+
+    std::string final_data = data;
+    
+    // 检查字符串是否为空，且最后一个字符是否为换行符
+    if (final_data.empty() || final_data.back() != '\n') {
+        final_data += '\n';
+    }
+
+    // 发送处理后的完整数据
+    ssize_t n = send(sock_fd, final_data.c_str(), final_data.size(), MSG_NOSIGNAL);
+    
     if (n < 0) {
-        perror("Error writing to TCP socket");
+        perror("TCP Send Error");
     }
 }
 
 std::string TcpComm::readLine() {
     if (sock_fd < 0) return "";
     std::string result;
-    char buffer[256];
-    ssize_t n = recv(sock_fd, buffer, sizeof(buffer) - 1, 0);
-    if (n < 0) {
-        perror("Error reading from TCP socket");
-        return "";
+    char c;
+    // TCP 是流，必须逐字节判断直到换行符，才能保证“行”的语义
+    while (recv(sock_fd, &c, 1, 0) > 0) {
+        if (c == '\n') break;
+        if (c != '\r') result += c; // 兼容 Windows 的 \r\n
     }
-    buffer[n] = '\0';
-    result = std::string(buffer);
     return result;
 }
 

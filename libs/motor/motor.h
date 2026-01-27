@@ -11,6 +11,7 @@ class Motor
 private:
     bool debug;
     CommInterface* comm;
+    int device_port;
 public:
     Motor(CommInterface* commPtr, int devicePort, bool debugFlag = false);
     void set_speed(int speed);

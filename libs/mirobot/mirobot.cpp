@@ -56,7 +56,7 @@ int translation(std::string instr, double data[])
 }
 
 // Mirobot构造函数
-Mirobot::Mirobot(CommInterface* commPtr, int devicePort, bool debugFlag) : comm(commPtr), debug(debugFlag) {
+Mirobot::Mirobot(CommInterface* commPtr, int devicePort, bool debugFlag) : comm(commPtr), device_port(devicePort), debug(debugFlag) {
     if (commPtr == nullptr)
         throw std::invalid_argument("CommInterface pointer cannot be null");
 }
@@ -89,16 +89,15 @@ void Mirobot::get_time()
 // 发送消息到Mirobot
 void Mirobot::send_msg(string msg, bool wait, int delay)
 {
-    comm->writeData(msg);
-    if (debug)
-        printf("message sent: %s\n", msg.c_str());
+    string full_msg = "@" + to_string(device_port) + msg;
+    comm->writeData(full_msg);
+    if (debug) printf("message sent: %s\n", full_msg.c_str());
     if (wait)
     {
-        cout << "waiting" << endl;
+        cout << "waiting\n" << endl;
         waitForEnd();
-        cout << read_status() << endl;
+        cout << "receive:" << read_status() << endl;
     }
-    sleep(delay);
 }
 
 string Mirobot::camera_msg(string msg, bool wait, int delay) {

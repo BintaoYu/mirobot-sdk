@@ -80,6 +80,7 @@ class Mirobot
 private:
     bool debug;
     CommInterface* comm;
+    int device_port;
     MoveMode movemode;
     RevolveDirection revolvedirection;
     MirobotJoint mirobotjoint;

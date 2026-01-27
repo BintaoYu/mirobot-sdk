@@ -3,18 +3,19 @@
 #include <iostream>
 #include <unistd.h>
 
-Motor::Motor(CommInterface* commPtr, int devicePort, bool debugFlag) : comm(commPtr), debug(debugFlag) {
+Motor::Motor(CommInterface* commPtr, int devicePort, bool debugFlag) : comm(commPtr), device_port(devicePort), debug(debugFlag) {
     if (commPtr == nullptr)
         throw std::invalid_argument("CommInterface pointer cannot be null");
 }
 
 void Motor::send_msg(string msg, bool wait) {
-    comm->writeData(msg);
-    if (debug) printf("Message sent: %s", msg.c_str());
+    string full_msg = "@" + to_string(device_port) + " " + msg;
+    comm->writeData(full_msg);
+    if (debug) printf("Message sent: %s\n", full_msg.c_str());
     if (wait) {
-        printf("Waiting to receive: %s", msg.c_str());
+        printf("Waiting \n");
         waitForEnd();
-        cout << read_status() << endl;
+        cout << "receive:" << read_status() << endl;
     }
 }
 
@@ -28,8 +29,7 @@ string Motor::read_status() {
 
 
 void Motor::waitForEnd() {
-    int timeout = 2000; // 2000 ms timeout
-    while (!comm->dataAvailable() && timeout-- > 0)
+    while (!comm->dataAvailable())
         usleep(1000);
 }
 
