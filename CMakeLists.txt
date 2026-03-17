@@ -5,6 +5,9 @@ project(Steel)
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
+# 【新增】强制全项目默认生成动态库 (.so / .dll)
+set(BUILD_SHARED_LIBS ON)
+
 # Add subdirectories
 add_subdirectory(common)
 add_subdirectory(libs)
