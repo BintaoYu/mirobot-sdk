@@ -1,6 +1,7 @@
 #pragma once
 
 #include "comm_interface.h"
+#include <cstdint>
 #include <string>
 
 class TcpComm : public CommInterface {
@@ -27,9 +28,11 @@ public:
 private:
     // 5. 构造和析构函数私有化
     TcpComm();
-    ~TcpComm();
+    ~TcpComm() override;
+
+    bool isConnected() const;
 
     std::string ip;
     int port;
-    int sock_fd;
+    std::intptr_t sock_fd;
 };

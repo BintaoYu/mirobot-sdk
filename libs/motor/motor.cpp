@@ -1,7 +1,8 @@
 #include "motor.h"
-#include <string>
+#include <chrono>
 #include <iostream>
-#include <unistd.h>
+#include <string>
+#include <thread>
 
 Motor::Motor(CommInterface* commPtr, int devicePort, bool debugFlag) : comm(commPtr), device_port(devicePort), debug(debugFlag) {
     if (commPtr == nullptr)
@@ -30,7 +31,7 @@ string Motor::read_status() {
 
 void Motor::waitForEnd() {
     while (!comm->dataAvailable())
-        usleep(1000);
+        std::this_thread::sleep_for(std::chrono::milliseconds(1));
 }
 
 void Motor::set_speed(int speed) {

@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.16)
-project(Steel)
+project(Steel LANGUAGES CXX)
 
 # Set C++ standard
 set(CMAKE_CXX_STANDARD 17)
@@ -8,10 +8,18 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 # 【新增】强制全项目默认生成动态库 (.so / .dll)
 set(BUILD_SHARED_LIBS ON)
 
+if (WIN32)
+    set(CMAKE_WINDOWS_EXPORT_ALL_SYMBOLS ON)
+endif()
+
+include(CTest)
+
 # Add subdirectories
 add_subdirectory(common)
 add_subdirectory(libs)
-add_subdirectory(tests)
+if (BUILD_TESTING)
+    add_subdirectory(tests)
+endif()
 
 # Include directories
 include_directories(

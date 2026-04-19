@@ -1,9 +1,10 @@
 #include "mirobot.h"
+#include <chrono>
 #include <iostream>
 #include <regex>
 #include <string>
+#include <thread>
 #include <ctime>
-#include <unistd.h>
 
 // 将双精度浮点数转换为字符串
 string doubleToString(double &dbNum)
@@ -35,7 +36,7 @@ void mirobot_reset(Mirobot &m)
 {
     string msg = "$H";
     m.send_msg(msg, true);
-    sleep(13);
+    std::this_thread::sleep_for(std::chrono::seconds(13));
 }
 
 // 从字符串中提取带逗号的浮点数并存储到数组中
@@ -110,7 +111,8 @@ string Mirobot::camera_msg(string msg, bool wait, int delay) {
         waitForEnd();
         return read_status();
     }
-    sleep(delay);
+    std::this_thread::sleep_for(std::chrono::seconds(delay));
+    return "";
 }
 
 // 等待串口结束
@@ -118,7 +120,7 @@ void Mirobot::waitForEnd()
 {
     while (!comm->dataAvailable())
     {
-        usleep(1000000);
+        std::this_thread::sleep_for(std::chrono::seconds(1));
         cout << "waiting" << endl;
     }
 }
@@ -169,7 +171,7 @@ void Mirobot::go_to_axis(double a1, double a2, double a3, double a4, double a5, 
 void Mirobot::go_to_zero(int delay)
 {
     go_to_axis(0, 0, 0, 0, 0, 0);
-    sleep(delay);
+    std::this_thread::sleep_for(std::chrono::seconds(delay));
 }
 
 // G1参数速度
@@ -254,7 +256,7 @@ void Mirobot::suction_cup_blow(int delay)
 void Mirobot::gripper_on()
 {
     send_msg("M3S40");
-    sleep(1);
+    std::this_thread::sleep_for(std::chrono::seconds(1));
     send_msg("M4E45");
 }
 
@@ -262,7 +264,7 @@ void Mirobot::gripper_on()
 void Mirobot::gripper_off()
 {
     send_msg("M3S60");
-    sleep(1);
+    std::this_thread::sleep_for(std::chrono::seconds(1));
     send_msg("M4E65");
 }
 
