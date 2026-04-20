@@ -1,12 +1,11 @@
-# common/CMakeLists.txt
-
-add_library(common STATIC
+add_library(common SHARED
     src/serial_comm.cpp
     src/tcp_comm.cpp
 )
 
 target_include_directories(common PUBLIC
-    ${CMAKE_SOURCE_DIR}/common/include
+    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
+    $<INSTALL_INTERFACE:include>
 )
 
 target_compile_features(common PUBLIC cxx_std_17)
