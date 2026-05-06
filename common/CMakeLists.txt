@@ -1,8 +1,10 @@
 add_library(common SHARED
     src/device_session.cpp
     src/serial_comm.cpp
+    src/shared_udp_comm.cpp
     src/tcp_server_comm.cpp
     src/tcp_comm.cpp
+    src/udp_comm.cpp
 )
 
 target_include_directories(common PUBLIC

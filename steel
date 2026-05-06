@@ -1,0 +1,110 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+REPO_ROOT="${SCRIPT_DIR}"
+APP_ROOT="${REPO_ROOT}/app"
+
+usage() {
+    cat <<'EOF'
+Usage:
+  ./steel native
+  ./steel arm64
+  ./steel win
+  ./steel msvc-cross
+  ./steel motor-test
+  ./steel clean
+  ./steel clean-legacy
+
+What each command does:
+  native       Build root + tests, then build app + tests
+  arm64        Build root, then build app for Linux ARM64
+  win          Build root, then build app for Windows x64 with MinGW
+  msvc-cross   Build root, then build app for Windows x64 with MSVC ABI from Linux
+  motor-test   Build steel_test and run the direct Motor hardware entry
+  clean        Remove the unified .build/ directory
+  clean-legacy Remove old scattered build*/app/build* directories
+EOF
+}
+
+run() {
+    echo "+ $*"
+    "$@"
+}
+
+run_root_preset() {
+    local preset="$1"
+    run cmake --preset "$preset"
+    run cmake --build --preset "$preset"
+}
+
+run_app_preset() {
+    local preset="$1"
+    (cd "${APP_ROOT}" && run cmake --preset "$preset")
+    (cd "${APP_ROOT}" && run cmake --build --preset "$preset")
+}
+
+ensure_msvc_cross_toolchain() {
+    if compgen -G "${REPO_ROOT}/.toolchains/llvm/LLVM-*-Linux-X64" > /dev/null && [ -d "${REPO_ROOT}/.toolchains/xwin/splat" ]; then
+        return
+    fi
+
+    run "${REPO_ROOT}/scripts/setup_windows_msvc_cross_toolchain.sh"
+}
+
+clean_legacy() {
+    shopt -s nullglob
+    local paths=(
+        "${REPO_ROOT}"/build
+        "${REPO_ROOT}"/build-*
+        "${REPO_ROOT}"/build_*
+        "${APP_ROOT}"/build
+        "${APP_ROOT}"/build-*
+        "${APP_ROOT}"/build_*
+        "${APP_ROOT}"/app/build*
+    )
+    if [ "${#paths[@]}" -gt 0 ]; then
+        run rm -rf "${paths[@]}"
+    fi
+}
+
+case "${1:-}" in
+    native)
+        run_root_preset native
+        run ctest --preset native
+        run_app_preset native
+        (cd "${APP_ROOT}" && run ctest --preset native)
+        ;;
+    arm64)
+        run_root_preset arm64
+        run_app_preset arm64
+        ;;
+    win)
+        run_root_preset win-mingw
+        run_app_preset win-mingw
+        ;;
+    msvc-cross)
+        ensure_msvc_cross_toolchain
+        run_root_preset win-msvc-cross
+        run_app_preset win-msvc-cross
+        ;;
+    motor-test)
+        run cmake --preset native
+        run cmake --build --preset native --target steel_test
+        run "${REPO_ROOT}/.build/native/tests/steel_test"
+        ;;
+    clean)
+        run rm -rf "${REPO_ROOT}/.build"
+        ;;
+    clean-legacy)
+        clean_legacy
+        ;;
+    ""|-h|--help|help)
+        usage
+        ;;
+    *)
+        echo "Unknown command: $1" >&2
+        usage >&2
+        exit 1
+        ;;
+esac

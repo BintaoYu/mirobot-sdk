@@ -1,6 +1,4 @@
-#include "device_session.h"
 #include "motor.h"
-#include "tcp_comm.h"
 #include <iostream>
 #include <string>
 
@@ -16,25 +14,16 @@ struct MotorExampleConfig {
 constexpr bool kEnableMotorExample = false;
 
 void runMotorExample(const MotorExampleConfig& config) {
-    TcpComm tcp_comm;
+    Motor motor(config.ip, config.port, config.device_port, true);
 
-    if (!tcp_comm.connect(config.ip, config.port)) {
-        std::cerr << "Motor 所需 TCP 连接失败: " << config.ip << ":" << config.port << std::endl;
-        return;
-    }
-
-    DeviceSession motor_session(tcp_comm, config.device_port, " ");
-    Motor motor(motor_session, true);
-
-    // 不等返回，适合控制器无回包或回包不可预期的场景。
+    // 直接传 IP/端口时，Motor 默认复用共享 UDP 通道。
     motor.send_msg("G6 F500", false);
 
-    // 下面这些接口会等待设备返回，如果控制器不回包，可能阻塞。
+    // 控制器如果会回包，同一个共享 UDP socket 会收到返回。
     motor.set_speed(config.run_speed);
     motor.set_speed(0);
 
     std::cout << "motor status: " << motor.read_status() << std::endl;
-    tcp_comm.disconnect();
 }
 
 } // namespace

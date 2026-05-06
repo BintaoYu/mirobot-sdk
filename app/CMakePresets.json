@@ -1,0 +1,70 @@
+{
+  "version": 3,
+  "cmakeMinimumRequired": {
+    "major": 3,
+    "minor": 22,
+    "patch": 0
+  },
+  "configurePresets": [
+    {
+      "name": "native",
+      "displayName": "Steel App Native",
+      "generator": "Ninja",
+      "binaryDir": "${sourceDir}/../.build/app-native"
+    },
+    {
+      "name": "arm64",
+      "displayName": "Steel App Linux ARM64",
+      "generator": "Ninja",
+      "binaryDir": "${sourceDir}/../.build/app-arm64",
+      "cacheVariables": {
+        "CMAKE_TOOLCHAIN_FILE": "${sourceDir}/../cmake/arm64_toolchain.cmake"
+      }
+    },
+    {
+      "name": "win-mingw",
+      "displayName": "Steel App Windows x64 MinGW",
+      "generator": "Ninja",
+      "binaryDir": "${sourceDir}/../.build/app-win-mingw",
+      "cacheVariables": {
+        "CMAKE_TOOLCHAIN_FILE": "${sourceDir}/../cmake/mingw-w64-x86_64_toolchain.cmake"
+      }
+    },
+    {
+      "name": "win-msvc-cross",
+      "displayName": "Steel App Windows x64 MSVC ABI Cross",
+      "generator": "Ninja",
+      "binaryDir": "${sourceDir}/../.build/app-win-msvc-cross",
+      "cacheVariables": {
+        "CMAKE_TOOLCHAIN_FILE": "${sourceDir}/../cmake/clang-cl-msvc-x64-linux-toolchain.cmake"
+      }
+    }
+  ],
+  "buildPresets": [
+    {
+      "name": "native",
+      "configurePreset": "native"
+    },
+    {
+      "name": "arm64",
+      "configurePreset": "arm64"
+    },
+    {
+      "name": "win-mingw",
+      "configurePreset": "win-mingw"
+    },
+    {
+      "name": "win-msvc-cross",
+      "configurePreset": "win-msvc-cross"
+    }
+  ],
+  "testPresets": [
+    {
+      "name": "native",
+      "configurePreset": "native",
+      "output": {
+        "outputOnFailure": true
+      }
+    }
+  ]
+}

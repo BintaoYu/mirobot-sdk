@@ -8,5 +8,6 @@ endfunction()
 
 add_steel_example(tcp_comm_example tcp_comm_example.cpp)
 add_steel_example(tcp_server_example tcp_server_example.cpp)
+add_steel_example(udp_comm_example udp_comm_example.cpp)
 add_steel_example(motor_example motor_example.cpp)
 add_steel_example(mirobot_example mirobot_example.cpp)

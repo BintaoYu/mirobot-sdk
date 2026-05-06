@@ -1,4 +1,5 @@
 #include "mirobot.h"
+#include "shared_udp_comm.h"
 #include <chrono>
 #include <cstdio>
 #include <ctime>
@@ -61,11 +62,23 @@ int translation(const std::string& instr, double data[])
 
 // Mirobot构造函数
 Mirobot::Mirobot(DeviceSession session, bool debugFlag)
-    : debug(debugFlag), session_(std::move(session)), time_temp{} {
+    : debug(debugFlag), owned_comm_(), session_(std::move(session)), time_temp{} {
 }
 
 Mirobot::Mirobot(CommInterface& comm, int devicePort, bool debugFlag, std::chrono::milliseconds timeout)
-    : Mirobot(DeviceSession(comm, devicePort, "", timeout), debugFlag) {
+    : debug(debugFlag), owned_comm_(), session_(comm, devicePort, "", timeout), time_temp{} {
+}
+
+Mirobot::Mirobot(
+    const std::string& targetIp,
+    int targetPort,
+    int devicePort,
+    bool debugFlag,
+    std::chrono::milliseconds timeout)
+    : debug(debugFlag),
+      owned_comm_(acquireSharedUdpComm(targetIp, targetPort)),
+      session_(*owned_comm_, devicePort, "", timeout),
+      time_temp{} {
 }
 
 // 读取Mirobot状态

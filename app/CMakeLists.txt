@@ -35,6 +35,7 @@ require_staged_file("${STEEL_APP_STAGED_INCLUDE_DIR}/device_session.h")
 require_staged_file("${STEEL_APP_STAGED_INCLUDE_DIR}/serial_comm.h")
 require_staged_file("${STEEL_APP_STAGED_INCLUDE_DIR}/tcp_comm.h")
 require_staged_file("${STEEL_APP_STAGED_INCLUDE_DIR}/tcp_server_comm.h")
+require_staged_file("${STEEL_APP_STAGED_INCLUDE_DIR}/udp_comm.h")
 require_staged_file("${STEEL_APP_STAGED_INCLUDE_DIR}/motor.h")
 require_staged_file("${STEEL_APP_STAGED_INCLUDE_DIR}/mirobot.h")
 

@@ -3,17 +3,25 @@
 
 #include "device_session.h"
 #include <chrono>
+#include <memory>
 #include <string>
 
 class Motor {
 private:
     bool debug;
+    std::shared_ptr<CommInterface> owned_comm_;
     DeviceSession session_;
 
 public:
     explicit Motor(DeviceSession session, bool debugFlag = false);
     Motor(
         CommInterface& comm,
+        int devicePort,
+        bool debugFlag = false,
+        std::chrono::milliseconds timeout = std::chrono::milliseconds(1000));
+    Motor(
+        const std::string& targetIp,
+        int targetPort,
         int devicePort,
         bool debugFlag = false,
         std::chrono::milliseconds timeout = std::chrono::milliseconds(1000));

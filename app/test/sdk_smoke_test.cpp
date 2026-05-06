@@ -4,6 +4,7 @@
 #include "recording_comm.h"
 #include "tcp_comm.h"
 #include "tcp_server_comm.h"
+#include "udp_comm.h"
 #include <iostream>
 #include <string>
 
@@ -59,6 +60,12 @@ int main() {
     TcpServerComm tcp_server;
     if (tcp_server.acceptClient(0)) {
         return fail("TcpServerComm should not accept clients before listen().");
+    }
+
+    UdpComm udp_comm;
+    udp_comm.disconnect();
+    if (udp_comm.connect("not-an-ip", 8000)) {
+        return fail("UdpComm should reject an invalid IPv4 address.");
     }
 
     tcp_comm.disconnect();

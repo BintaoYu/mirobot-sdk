@@ -1,24 +1,30 @@
 # Repository Guidelines
 
 ## Project Structure & Module Organization
-`common/include` and `common/src` contain shared communication abstractions such as `CommInterface`, `SerialComm`, and `TcpComm`. `libs/motor` and `libs/mirobot` provide device-specific shared libraries. `tests/main_test.cpp` builds the `steel_test` executable used for integration-style checks. The root [`CMakeLists.txt`](/mnt/nvme/comfyui-pt29/Steel/CMakeLists.txt) wires targets together, and `cmake/arm64_toolchain.cmake` supports AArch64 cross-builds. Keep new headers next to their owning module; expose only reusable interfaces through `common/include`.
+`common/include` and `common/src` contain shared communication abstractions such as `CommInterface`, `SerialComm`, `TcpComm`, `TcpServerComm`, `UdpComm`, and `DeviceSession`. `libs/motor` and `libs/mirobot` provide device-specific shared libraries. `app/` is a standalone SDK consumer and must use staged headers and dynamic libraries from `app/sdk/<platform-tag>/` instead of linking project sources directly. `tests/main_test.cpp` builds the fixed-parameter `steel_test` executable used for direct motor hardware checks. The root `CMakeLists.txt`, `CMakePresets.json`, and `app/CMakePresets.json` provide unified build entry points. Keep new headers next to their owning module; expose only reusable interfaces through `common/include`.
 
 ## Build, Test, and Development Commands
-`cmake -S . -B build` configures a local build tree.
+Preferred entry point: `./steel ...`
 
-`cmake --build build` builds `common`, `motor`, `mirobot`, and `steel_test`.
+`./steel native` builds the root project, runs root CTest, builds `app`, and runs the `app` smoke test. Root CTest includes the hardware-labeled `steel_test`, so use `ctest --test-dir .build/native --output-on-failure -LE hardware` when no device is available.
 
-`cmake --build build --target steel_test` rebuilds only the test executable during iteration.
+`./steel arm64` builds the root project and `app` for Linux ARM64.
 
-`cmake -S . -B build-arm64 -DCMAKE_TOOLCHAIN_FILE=cmake/arm64_toolchain.cmake` configures an ARM64 cross-build.
+`./steel win` builds the root project and `app` for Windows x64 with MinGW.
 
-`./build/tests/steel_test` is a hardware or integration check, not a pure unit test. Run it only with a reachable comm backend or after adapting the harness.
+`./steel msvc-cross` builds the root project and `app` for Windows x64 MSVC ABI from Linux.
+
+`./steel motor-test` rebuilds and runs `steel_test`.
+
+`./steel clean` removes the unified `.build/` directory, and `./steel clean-legacy` removes old scattered `build*` and `app/build*` directories.
+
+Manual CMake usage is still supported, but new build directories should live under `.build/` instead of creating more root-level `build-*` directories. Cross-builds should be validated through `./steel arm64`, `./steel win`, and especially `./steel msvc-cross` when changing public headers, install rules, or SDK staging.
 
 ## Coding Style & Naming Conventions
 Use 4-space indentation. Preserve the local brace and spacing style of the file you are editing rather than reformatting unrelated lines. Class names use `PascalCase`; filenames and many methods use `snake_case`, for example `motor.cpp` and `set_speed`. Follow the dominant style within each module instead of mixing conventions in one file. Keep headers minimal, prefer existing include-guard patterns, and avoid introducing new `using namespace std;` directives.
 
 ## Testing Guidelines
-Test coverage is currently light and centered on transport-backed behavior. Add new tests under `tests/` and prefer filenames ending in `*_test.cpp`. Verify both successful builds and expected comm behavior. If a test depends on hardware, document the required serial device, IP, or port in the test source and PR. When changing comm code, avoid infinite waits; add timeouts or clear failure paths.
+Test coverage is centered on transport-backed behavior and SDK consumption. Add new tests under `tests/` and prefer filenames ending in `*_test.cpp`. Verify both successful builds and expected comm behavior. If a test depends on hardware, document the required IP, port, or serial device in the test source and PR. When changing comm code, avoid infinite waits; add timeouts or clear failure paths. When changing public API or install/stage behavior, also build `app` so the standalone dynamic-library consumer path is covered.
 
 ## Commit & Pull Request Guidelines
 Recent history uses short subjects such as `tcp_comm`, `v2.0`, and date tags. Keep commits small and topic-focused, but prefer descriptive subjects over date-only labels, for example `motor: guard wait loop`. PRs should include a short summary, affected modules, the exact build or test commands run, and any hardware assumptions. For protocol changes, include a sample command, log, or observed device response.

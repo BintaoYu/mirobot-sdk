@@ -19,6 +19,12 @@ target_link_libraries(device_session_test PRIVATE common)
 add_steel_test(tcp_comm_test tcp_comm_test.cpp)
 target_link_libraries(tcp_comm_test PRIVATE common)
 
+add_steel_test(udp_comm_test udp_comm_test.cpp)
+target_link_libraries(udp_comm_test PRIVATE common)
+
+add_steel_test(shared_udp_device_test shared_udp_device_test.cpp)
+target_link_libraries(shared_udp_device_test PRIVATE common motor mirobot)
+
 add_steel_test(tcp_server_comm_test tcp_server_comm_test.cpp)
 target_link_libraries(tcp_server_comm_test PRIVATE common)
 
@@ -28,3 +34,8 @@ target_include_directories(steel_test PRIVATE
 )
 target_compile_features(steel_test PRIVATE cxx_std_17)
 target_link_libraries(steel_test PRIVATE common motor mirobot)
+add_test(NAME steel_test COMMAND steel_test)
+set_tests_properties(steel_test PROPERTIES
+    LABELS "hardware"
+    RUN_SERIAL TRUE
+)

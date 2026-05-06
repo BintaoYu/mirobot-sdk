@@ -196,6 +196,16 @@ public:
         }
     }
 
+    void disconnectClient(std::chrono::milliseconds timeout = std::chrono::milliseconds(1000)) {
+        waitForClient(timeout);
+
+        {
+            std::lock_guard<std::mutex> lock(mutex_);
+            closeSocket(client_socket_);
+            client_socket_ = kInvalidSocket;
+        }
+    }
+
 private:
     void acceptClient() {
         sockaddr_in address = {};

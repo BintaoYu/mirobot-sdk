@@ -3,6 +3,7 @@
 
 #include "device_session.h"
 #include <chrono>
+#include <memory>
 #include <string>
 
 std::string doubleToString(double dbNum);
@@ -68,6 +69,7 @@ struct Status {
 class Mirobot {
 private:
     bool debug;
+    std::shared_ptr<CommInterface> owned_comm_;
     DeviceSession session_;
     MoveMode movemode;
     RevolveDirection revolvedirection;
@@ -82,6 +84,12 @@ public:
     explicit Mirobot(DeviceSession session, bool debugFlag = false);
     Mirobot(
         CommInterface& comm,
+        int devicePort,
+        bool debugFlag = false,
+        std::chrono::milliseconds timeout = std::chrono::milliseconds(1000));
+    Mirobot(
+        const std::string& targetIp,
+        int targetPort,
         int devicePort,
         bool debugFlag = false,
         std::chrono::milliseconds timeout = std::chrono::milliseconds(1000));

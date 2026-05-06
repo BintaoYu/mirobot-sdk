@@ -198,10 +198,12 @@ void TcpComm::writeData(const std::string &data) {
         if (sent < 0) {
 #endif
             std::cerr << "TCP send error: " << lastSocketError() << std::endl;
+            closeSocket(sock_fd);
             return;
         }
         if (sent == 0) {
             std::cerr << "TCP send returned 0 bytes" << std::endl;
+            closeSocket(sock_fd);
             return;
         }
 
@@ -222,11 +224,13 @@ std::string TcpComm::readLine() {
 #ifdef _WIN32
         const int received = recv(nativeSocket(sock_fd), &c, 1, 0);
         if (received == SOCKET_ERROR || received == 0) {
+            closeSocket(sock_fd);
             break;
         }
 #else
         const ssize_t received = recv(nativeSocket(sock_fd), &c, 1, 0);
         if (received <= 0) {
+            closeSocket(sock_fd);
             break;
         }
 #endif

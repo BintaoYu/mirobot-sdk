@@ -1,4 +1,5 @@
 #include "motor.h"
+#include "shared_udp_comm.h"
 #include <chrono>
 #include <cstdio>
 #include <iostream>
@@ -7,11 +8,22 @@
 #include <utility>
 
 Motor::Motor(DeviceSession session, bool debugFlag)
-    : debug(debugFlag), session_(std::move(session)) {
+    : debug(debugFlag), owned_comm_(), session_(std::move(session)) {
 }
 
 Motor::Motor(CommInterface& comm, int devicePort, bool debugFlag, std::chrono::milliseconds timeout)
-    : Motor(DeviceSession(comm, devicePort, " ", timeout), debugFlag) {
+    : debug(debugFlag), owned_comm_(), session_(comm, devicePort, " ", timeout) {
+}
+
+Motor::Motor(
+    const std::string& targetIp,
+    int targetPort,
+    int devicePort,
+    bool debugFlag,
+    std::chrono::milliseconds timeout)
+    : debug(debugFlag),
+      owned_comm_(acquireSharedUdpComm(targetIp, targetPort)),
+      session_(*owned_comm_, devicePort, " ", timeout) {
 }
 
 void Motor::send_msg(const std::string& msg, bool wait) {

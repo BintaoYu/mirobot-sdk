@@ -1,4 +1,5 @@
 build*/
+.build/
 app/build*/
 app/include/
 app/lib/

@@ -72,6 +72,30 @@ void independent_instances_can_connect_to_different_servers() {
     second_client.disconnect();
 }
 
+void peer_close_is_reported_without_stale_readability() {
+    LoopbackTcpServer server;
+    TcpComm tcp_comm;
+    tcp_comm.disconnect();
+
+    CHECK(tcp_comm.connect("127.0.0.1", server.port()));
+    server.waitForClient();
+    server.disconnectClient();
+
+    bool readable = false;
+    for (int i = 0; i < 50; ++i) {
+        if (tcp_comm.dataAvailable()) {
+            readable = true;
+            break;
+        }
+        std::this_thread::sleep_for(std::chrono::milliseconds(10));
+    }
+
+    CHECK(readable);
+    CHECK_EQ(tcp_comm.readLine(), std::string(""));
+    CHECK(!tcp_comm.isConnected());
+    CHECK(!tcp_comm.dataAvailable());
+}
+
 } // namespace
 
 int main() {
@@ -85,6 +109,7 @@ int main() {
         {"TcpComm::writeData appends a newline", writeData_appends_newline_for_server_side_reads},
         {"TcpComm::dataAvailable and readLine consume CRLF", dataAvailable_and_readLine_consume_crlf_messages},
         {"TcpComm instances manage independent connections", independent_instances_can_connect_to_different_servers},
+        {"TcpComm clears stale readability after peer close", peer_close_is_reported_without_stale_readability},
     };
 
     return test_support::runTests(tests);
