@@ -1,24 +1,28 @@
 #ifndef MOTOR_H
 #define MOTOR_H
 
-#include "comm_interface.h"
+#include "device_session.h"
+#include <chrono>
 #include <string>
 
-using namespace std;
-
-class Motor
-{
+class Motor {
 private:
     bool debug;
-    CommInterface* comm;
-    int device_port;
+    DeviceSession session_;
+
 public:
-    Motor(CommInterface* commPtr, int devicePort, bool debugFlag = false);
+    explicit Motor(DeviceSession session, bool debugFlag = false);
+    Motor(
+        CommInterface& comm,
+        int devicePort,
+        bool debugFlag = false,
+        std::chrono::milliseconds timeout = std::chrono::milliseconds(1000));
+
     void set_speed(int speed);
-    void send_msg(string msg, bool wait = false);
-    void waitForEnd();
+    void send_msg(const std::string& msg, bool wait = false);
+    bool waitForEnd(std::chrono::milliseconds timeout = std::chrono::milliseconds(1000));
     void load(int speed, int offset = 0);
-    string read_status();
+    std::string read_status();
 };
 
 #endif

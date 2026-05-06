@@ -6,32 +6,24 @@
 
 class TcpComm : public CommInterface {
 public:
-    // 1. 获取全局唯一单例 (C++11 局部静态变量，初始化是安全的)
-    static TcpComm& getInstance() {
-        static TcpComm instance;
-        return instance;
-    }
+    TcpComm();
+    ~TcpComm() override;
 
-    // 2. 禁用拷贝构造函数和赋值操作符，防止单例被意外复制
     TcpComm(const TcpComm&) = delete;
     TcpComm& operator=(const TcpComm&) = delete;
+    TcpComm(TcpComm&&) = delete;
+    TcpComm& operator=(TcpComm&&) = delete;
 
-    // 3. 网络连接控制方法
+    bool connect(const std::string& target_ip, int target_port);
     bool connectToServer(const std::string& target_ip, int target_port);
     void disconnect();
+    bool isConnected() const;
 
-    // 4. 实现 CommInterface 接口
     void writeData(const std::string &data) override;
     std::string readLine() override;
     bool dataAvailable() override;
 
 private:
-    // 5. 构造和析构函数私有化
-    TcpComm();
-    ~TcpComm() override;
-
-    bool isConnected() const;
-
     std::string ip;
     int port;
     std::intptr_t sock_fd;

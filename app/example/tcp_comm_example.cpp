@@ -13,12 +13,12 @@ struct TcpExampleConfig {
     std::string second_command = "@2 $H";
 };
 
-constexpr bool kEnableTcpExample = false;
+constexpr bool kEnableTcpExample = true;
 
 void runTcpExample(const TcpExampleConfig& config) {
-    TcpComm& tcp_comm = TcpComm::getInstance();
+    TcpComm tcp_comm;
 
-    if (!tcp_comm.connectToServer(config.ip, config.port)) {
+    if (!tcp_comm.connect(config.ip, config.port)) {
         std::cerr << "TCP 连接失败: " << config.ip << ":" << config.port << std::endl;
         return;
     }

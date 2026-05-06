@@ -2,4 +2,6 @@ build*/
 app/build*/
 app/include/
 app/lib/
+app/sdk/
+.toolchains/
 .codex

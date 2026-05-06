@@ -1,3 +1,4 @@
+#include "device_session.h"
 #include "motor.h"
 #include "tcp_comm.h"
 #include <iostream>
@@ -15,14 +16,15 @@ struct MotorExampleConfig {
 constexpr bool kEnableMotorExample = false;
 
 void runMotorExample(const MotorExampleConfig& config) {
-    TcpComm& tcp_comm = TcpComm::getInstance();
+    TcpComm tcp_comm;
 
-    if (!tcp_comm.connectToServer(config.ip, config.port)) {
+    if (!tcp_comm.connect(config.ip, config.port)) {
         std::cerr << "Motor 所需 TCP 连接失败: " << config.ip << ":" << config.port << std::endl;
         return;
     }
 
-    Motor motor(&tcp_comm, config.device_port, true);
+    DeviceSession motor_session(tcp_comm, config.device_port, " ");
+    Motor motor(motor_session, true);
 
     // 不等返回，适合控制器无回包或回包不可预期的场景。
     motor.send_msg("G6 F500", false);

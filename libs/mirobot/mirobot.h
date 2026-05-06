@@ -1,19 +1,14 @@
 #ifndef MIROBOT_H
 #define MIROBOT_H
 
-#include "serial_comm.h"
+#include "device_session.h"
+#include <chrono>
 #include <string>
-#include <iostream>
-#include <ctime>
-#include <regex>
 
-using namespace std;
+std::string doubleToString(double dbNum);
+void getMatch(const std::string& instr, double data[]);
 
-string doubleToString(double &dbNum);
-void getMatch(std::string instr, double data[]);
-
-struct MirobotJoint
-{
+struct MirobotJoint {
     int Joint1 = 1;
     int Joint2 = 2;
     int Joint3 = 3;
@@ -22,14 +17,12 @@ struct MirobotJoint
     int Joint6 = 6;
 };
 
-struct RevolveDirection
-{
+struct RevolveDirection {
     int cw = 1;
     int ccw = 2;
 };
 
-struct MoveDirection
-{
+struct MoveDirection {
     int dforward = 1;
     int dbackward = 2;
     int dup = 3;
@@ -38,64 +31,67 @@ struct MoveDirection
     int dleft = 6;
 };
 
-struct MoveMode
-{
+struct MoveMode {
     int relative = 1; //相对位置G91
     int absolute = 2; //绝对位置G90
 };
 
-struct Motion
-{
+struct Motion {
     int MOVJ = 1; //关节运动
     int MOVL = 2; //直线运动
     int JUMP = 3; //门型轨迹运动
 };
 
-struct Status
-{
+struct Status {
     bool moving = false; //机械臂空闲状态
     //机械臂各轴角度值
-    double A;
-    double B;
-    double C;
-    double D;
-    double X;
-    double Y;
-    double Z;
+    double A = 0.0;
+    double B = 0.0;
+    double C = 0.0;
+    double D = 0.0;
+    double X = 0.0;
+    double Y = 0.0;
+    double Z = 0.0;
     //机械臂末端的位置和姿态
-    double CCX;
-    double CCY;
-    double CCZ;
-    double CCRX;
-    double CCRY;
-    double CCRZ;
-    char* time;
+    double CCX = 0.0;
+    double CCY = 0.0;
+    double CCZ = 0.0;
+    double CCRX = 0.0;
+    double CCRY = 0.0;
+    double CCRZ = 0.0;
+    const char* time = nullptr;
     //两组PWM的值
-    int PumpPWM;
-    int ValvePWM;
+    int PumpPWM = 0;
+    int ValvePWM = 0;
 };
 
-class Mirobot
-{
+class Mirobot {
 private:
     bool debug;
-    CommInterface* comm;
-    int device_port;
+    DeviceSession session_;
     MoveMode movemode;
     RevolveDirection revolvedirection;
     MirobotJoint mirobotjoint;
     Status status;
     char time_temp[32];
+
 public:
     Motion motiontype;
     MoveDirection movedirection;
-    Mirobot(CommInterface* commPtr, int devicePort, bool debugFlag = false);
-    string readline();
-    string read_status();
+
+    explicit Mirobot(DeviceSession session, bool debugFlag = false);
+    Mirobot(
+        CommInterface& comm,
+        int devicePort,
+        bool debugFlag = false,
+        std::chrono::milliseconds timeout = std::chrono::milliseconds(1000));
+
+    std::string readline();
+    std::string read_status();
     void get_time();
-    void send_msg(string msg, bool wait = false, int delay = 0);
-    string camera_msg(string msg, bool wait = true, int delay = 0);
-    void waitForEnd();
+    void send_msg(const std::string& msg, bool wait = false, int delay = 0);
+    std::string camera_msg(const std::string& msg, bool wait = true, int delay = 0);
+    bool waitForEnd(std::chrono::milliseconds timeout = std::chrono::milliseconds(1000));
 
     //每个轴复位
     //home each axis individually
@@ -181,7 +177,7 @@ public:
     ~Mirobot();
 };
 
-int translation(std::string instr, double data[]);
+int translation(const std::string& instr, double data[]);
 void mirobot_reset(Mirobot &m);
 
 #endif // MIROBOT_H

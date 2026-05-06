@@ -6,6 +6,9 @@
 #ifndef WIN32_LEAN_AND_MEAN
 #define WIN32_LEAN_AND_MEAN
 #endif
+#ifndef _WIN32_WINNT
+#define _WIN32_WINNT 0x0600
+#endif
 #include <winsock2.h>
 #include <ws2tcpip.h>
 #else
@@ -93,9 +96,25 @@ int sendFlags() {
 #endif
 }
 
+bool parseIpv4Address(const std::string& ip, in_addr& out_address) {
+#ifdef _WIN32
+#if defined(__MINGW32__)
+    const unsigned long address_value = inet_addr(ip.c_str());
+    if (address_value == INADDR_NONE && ip != "255.255.255.255") {
+        return false;
+    }
+    out_address.s_addr = address_value;
+    return true;
+#else
+    return InetPtonA(AF_INET, ip.c_str(), &out_address) == 1;
+#endif
+#else
+    return inet_pton(AF_INET, ip.c_str(), &out_address) == 1;
+#endif
+}
+
 } // namespace
 
-// 私有构造函数，仅初始化成员变量
 TcpComm::TcpComm() : ip(""), port(0), sock_fd(kInvalidSocketValue) {}
 
 TcpComm::~TcpComm() {
@@ -106,9 +125,9 @@ bool TcpComm::isConnected() const {
     return sock_fd != kInvalidSocketValue;
 }
 
-bool TcpComm::connectToServer(const std::string& target_ip, int target_port) {
+bool TcpComm::connect(const std::string& target_ip, int target_port) {
     if (isConnected()) {
-        return true; // 已经连接
+        return true;
     }
 
 #ifdef _WIN32
@@ -135,18 +154,22 @@ bool TcpComm::connectToServer(const std::string& target_ip, int target_port) {
     sockaddr_in server_addr = {};
     server_addr.sin_family = AF_INET;
     server_addr.sin_port = htons(static_cast<uint16_t>(port));
-    if (inet_pton(AF_INET, ip.c_str(), &server_addr.sin_addr) != 1) {
+    if (!parseIpv4Address(ip, server_addr.sin_addr)) {
         std::cerr << "Invalid IPv4 address: " << ip << std::endl;
         closeSocket(sock_fd);
         return false;
     }
 
-    if (connect(nativeSocket(sock_fd), reinterpret_cast<sockaddr*>(&server_addr), sizeof(server_addr)) != 0) {
+    if (::connect(nativeSocket(sock_fd), reinterpret_cast<sockaddr*>(&server_addr), sizeof(server_addr)) != 0) {
         std::cerr << "Connection to server failed: " << lastSocketError() << std::endl;
         closeSocket(sock_fd);
         return false;
     }
     return true;
+}
+
+bool TcpComm::connectToServer(const std::string& target_ip, int target_port) {
+    return connect(target_ip, target_port);
 }
 
 void TcpComm::disconnect() {

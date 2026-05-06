@@ -3,6 +3,14 @@
 set(CMAKE_SYSTEM_NAME Windows)
 set(CMAKE_SYSTEM_PROCESSOR x86_64)
 
+get_filename_component(STEEL_REPO_ROOT "${CMAKE_CURRENT_LIST_DIR}/.." ABSOLUTE)
+set(STEEL_LOCAL_MINGW_ROOT "${STEEL_REPO_ROOT}/.toolchains/mingw-w64/root/usr")
+set(STEEL_LOCAL_MINGW_BIN_DIR "${STEEL_LOCAL_MINGW_ROOT}/bin")
+
+if (EXISTS "${STEEL_LOCAL_MINGW_BIN_DIR}")
+    list(PREPEND CMAKE_PROGRAM_PATH "${STEEL_LOCAL_MINGW_BIN_DIR}")
+endif()
+
 find_program(MINGW_W64_C_COMPILER
     NAMES x86_64-w64-mingw32-gcc x86_64-w64-mingw32-gcc-posix
     REQUIRED)

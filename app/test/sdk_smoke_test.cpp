@@ -1,7 +1,9 @@
+#include "device_session.h"
 #include "mirobot.h"
 #include "motor.h"
 #include "recording_comm.h"
 #include "tcp_comm.h"
+#include "tcp_server_comm.h"
 #include <iostream>
 #include <string>
 
@@ -18,7 +20,8 @@ int main() {
     RecordingComm comm;
     comm.queueResponse("speed-ok");
 
-    Motor motor(&comm, 10);
+    DeviceSession motor_session(comm, 10, " ");
+    Motor motor(motor_session);
     motor.set_speed(1000);
 
     if (comm.writes().size() != static_cast<std::size_t>(1)) {
@@ -35,7 +38,8 @@ int main() {
     }
 
     comm.queueResponse("move-ok");
-    Mirobot mirobot(&comm, 2);
+    DeviceSession mirobot_session(comm, 2);
+    Mirobot mirobot(mirobot_session);
     mirobot.go_to_axis(1.0, 2.5, -3.0, 4.25, 5.0, 6.0);
 
     if (comm.writes().size() != static_cast<std::size_t>(2)) {
@@ -46,10 +50,15 @@ int main() {
         return fail("Mirobot smoke test saw an unexpected command string.");
     }
 
-    TcpComm& tcp_comm = TcpComm::getInstance();
+    TcpComm tcp_comm;
     tcp_comm.disconnect();
-    if (tcp_comm.connectToServer("not-an-ip", 8000)) {
+    if (tcp_comm.connect("not-an-ip", 8000)) {
         return fail("TcpComm should reject an invalid IPv4 address.");
+    }
+
+    TcpServerComm tcp_server;
+    if (tcp_server.acceptClient(0)) {
+        return fail("TcpServerComm should not accept clients before listen().");
     }
 
     tcp_comm.disconnect();

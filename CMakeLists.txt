@@ -10,6 +10,7 @@ if (WIN32)
 endif()
 
 include(CTest)
+include(${CMAKE_SOURCE_DIR}/cmake/steel_platform_tag.cmake)
 
 add_subdirectory(common)
 add_subdirectory(libs)
@@ -18,6 +19,11 @@ if (BUILD_TESTING)
 endif()
 
 option(STEEL_STAGE_APP_SDK "Copy shared libraries and public headers into app after the main build." ON)
+set(STEEL_APP_SDK_TAG "" CACHE STRING "Platform tag used for staging the SDK into app/sdk/<tag>. Leave empty to use the current target platform.")
+
+if (STEEL_APP_SDK_TAG STREQUAL "")
+    steel_compute_platform_tag(STEEL_APP_SDK_TAG)
+endif()
 
 install(TARGETS common motor mirobot
     RUNTIME DESTINATION lib
@@ -37,7 +43,7 @@ install(FILES
 )
 
 if (STEEL_STAGE_APP_SDK)
-    set(STEEL_APP_STAGE_DIR ${CMAKE_SOURCE_DIR}/app)
+    set(STEEL_APP_STAGE_DIR ${CMAKE_SOURCE_DIR}/app/sdk/${STEEL_APP_SDK_TAG})
     set(STEEL_APP_STAGE_INCLUDE_DIR ${STEEL_APP_STAGE_DIR}/include)
     set(STEEL_APP_STAGE_LIB_DIR ${STEEL_APP_STAGE_DIR}/lib)
     set(STEEL_STAGE_CONFIG_ARGS)
@@ -47,11 +53,10 @@ if (STEEL_STAGE_APP_SDK)
     endif()
 
     add_custom_target(stage_app_sdk ALL
-        COMMAND ${CMAKE_COMMAND} -E rm -rf ${STEEL_APP_STAGE_INCLUDE_DIR}
-        COMMAND ${CMAKE_COMMAND} -E rm -rf ${STEEL_APP_STAGE_LIB_DIR}
+        COMMAND ${CMAKE_COMMAND} -E rm -rf ${STEEL_APP_STAGE_DIR}
         COMMAND ${CMAKE_COMMAND} -E make_directory ${STEEL_APP_STAGE_DIR}
         COMMAND ${CMAKE_COMMAND} --install ${CMAKE_BINARY_DIR} --prefix ${STEEL_APP_STAGE_DIR} ${STEEL_STAGE_CONFIG_ARGS}
-        COMMENT "Staging Steel shared libraries and public headers into app"
+        COMMENT "Staging Steel shared libraries and public headers into app/sdk/${STEEL_APP_SDK_TAG}"
         VERBATIM
     )
 

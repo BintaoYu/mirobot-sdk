@@ -1,3 +1,4 @@
+#include "device_session.h"
 #include "mirobot.h"
 #include "serial_comm.h"
 #include <iostream>
@@ -17,7 +18,8 @@ void runMirobotExample(const MirobotExampleConfig& config) {
     SerialComm serial_comm(config.serial_port);
     serial_comm.flush();
 
-    Mirobot mirobot(&serial_comm, config.device_port, true);
+    DeviceSession mirobot_session(serial_comm, config.device_port);
+    Mirobot mirobot(mirobot_session, true);
 
     // 常见初始化顺序：解锁 -> 设置速度 -> 回零。
     mirobot.unlock_shaft();

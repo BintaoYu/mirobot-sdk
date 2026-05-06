@@ -1,3 +1,4 @@
+#include "device_session.h"
 #include "mirobot.h"
 #include "motor.h"
 #include "serial_comm.h"
@@ -8,16 +9,16 @@
 namespace {
 
 void example_tcp_comm_basic() {
-    // 1. 获取 TcpComm 单例。
+    // 1. 创建一个 TcpComm 连接对象。
     // 2. 连接到控制器 TCP 服务。
     // 3. 直接通过 CommInterface 接口发送原始指令。
     // 4. 按需轮询返回内容。
-    TcpComm& tcp_comm = TcpComm::getInstance();
+    TcpComm tcp_comm;
 
     const std::string ip = "192.168.31.120";
     const int port = 8000;
 
-    if (!tcp_comm.connectToServer(ip, port)) {
+    if (!tcp_comm.connect(ip, port)) {
         std::cerr << "TCP 连接失败: " << ip << ":" << port << std::endl;
         return;
     }
@@ -38,20 +39,20 @@ void example_tcp_comm_basic() {
 }
 
 void example_motor_over_tcp() {
-    // Motor 通过 CommInterface 工作，所以可以直接挂在 TcpComm 上。
-    // device_port 是协议里的设备号，例如 @10。
-    TcpComm& tcp_comm = TcpComm::getInstance();
+    // Motor 通过 DeviceSession 工作，设备地址前缀和等待策略集中在会话层。
+    TcpComm tcp_comm;
 
     const std::string ip = "192.168.31.120";
     const int port = 8000;
     const int device_port = 10;
 
-    if (!tcp_comm.connectToServer(ip, port)) {
+    if (!tcp_comm.connect(ip, port)) {
         std::cerr << "Motor 所需 TCP 连接失败: " << ip << ":" << port << std::endl;
         return;
     }
 
-    Motor motor(&tcp_comm, device_port, true);
+    DeviceSession motor_session(tcp_comm, device_port, " ");
+    Motor motor(motor_session, true);
 
     // 直接发底层运动指令，不等待返回。
     motor.send_msg("G6 F500", false);
@@ -80,7 +81,8 @@ void example_mirobot_over_serial() {
     SerialComm serial_comm(serial_port);
     serial_comm.flush();
 
-    Mirobot mirobot(&serial_comm, device_port, true);
+    DeviceSession mirobot_session(serial_comm, device_port);
+    Mirobot mirobot(mirobot_session, true);
 
     // 常见初始化顺序:
     // 1. 解锁
@@ -121,18 +123,19 @@ void example_mirobot_over_serial() {
 
 void example_mirobot_over_tcp() {
     // 如果 Mirobot 控制器暴露的是 TCP 接口，也可以直接复用 TcpComm。
-    TcpComm& tcp_comm = TcpComm::getInstance();
+    TcpComm tcp_comm;
 
     const std::string ip = "192.168.31.120";
     const int port = 8000;
     const int device_port = 2;
 
-    if (!tcp_comm.connectToServer(ip, port)) {
+    if (!tcp_comm.connect(ip, port)) {
         std::cerr << "Mirobot TCP 连接失败: " << ip << ":" << port << std::endl;
         return;
     }
 
-    Mirobot mirobot(&tcp_comm, device_port, true);
+    DeviceSession mirobot_session(tcp_comm, device_port);
+    Mirobot mirobot(mirobot_session, true);
 
     mirobot.home_simultaneous();
     mirobot.set_speed(1500);

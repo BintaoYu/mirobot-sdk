@@ -8,15 +8,22 @@ using test_support::TestCase;
 
 namespace {
 
-void constructor_requires_non_null_comm() {
-    CHECK_THROWS_AS(Motor(nullptr, 10), std::invalid_argument);
+void constructor_accepts_session_object() {
+    MockComm comm;
+    DeviceSession session(comm, 10, " ");
+
+    Motor motor(session);
+    motor.send_msg("G6 F500", false);
+
+    CHECK_EQ(comm.writes().size(), static_cast<std::size_t>(1));
+    CHECK_EQ(comm.writes()[0], std::string("@10 G6 F500"));
 }
 
 void set_speed_formats_prefixed_command() {
     MockComm comm;
     comm.enqueueResponseBatch({"ok"});
 
-    Motor motor(&comm, 10);
+    Motor motor(comm, 10);
     motor.set_speed(1000);
 
     CHECK_EQ(comm.writes().size(), static_cast<std::size_t>(1));
@@ -29,7 +36,7 @@ void load_sends_reset_then_speed_command() {
     comm.enqueueResponseBatch({"reset-ok"});
     comm.enqueueResponseBatch({"speed-ok"});
 
-    Motor motor(&comm, 7);
+    Motor motor(comm, 7);
     motor.load(250);
 
     CHECK_EQ(comm.writes().size(), static_cast<std::size_t>(2));
@@ -42,7 +49,7 @@ void read_status_concatenates_all_available_lines() {
     comm.enqueueRead("line-a");
     comm.enqueueRead("line-b");
 
-    Motor motor(&comm, 3);
+    Motor motor(comm, 3);
     CHECK_EQ(motor.read_status(), std::string("line-aline-b"));
 }
 
@@ -50,7 +57,7 @@ void read_status_concatenates_all_available_lines() {
 
 int main() {
     const std::vector<TestCase> tests = {
-        {"Motor constructor rejects null CommInterface", constructor_requires_non_null_comm},
+        {"Motor accepts an injected DeviceSession", constructor_accepts_session_object},
         {"Motor::set_speed formats the expected command", set_speed_formats_prefixed_command},
         {"Motor::load sends reset and speed commands", load_sends_reset_then_speed_command},
         {"Motor::read_status concatenates queued lines", read_status_concatenates_all_available_lines},

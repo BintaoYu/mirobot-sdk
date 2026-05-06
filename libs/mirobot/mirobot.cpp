@@ -1,22 +1,25 @@
 #include "mirobot.h"
 #include <chrono>
+#include <cstdio>
+#include <ctime>
 #include <iostream>
 #include <regex>
+#include <stdexcept>
 #include <string>
 #include <thread>
-#include <ctime>
+#include <utility>
 
 // 将双精度浮点数转换为字符串
-string doubleToString(double &dbNum)
+std::string doubleToString(double dbNum)
 {
     char chCode[25];
-    sprintf(chCode, "%.2lf", dbNum);
-    return string(chCode);
+    std::snprintf(chCode, sizeof(chCode), "%.2lf", dbNum);
+    return std::string(chCode);
 }
 
 
 // 从字符串中提取浮点数并存储到数组中
-void getMatch(std::string instr, double data[])
+void getMatch(const std::string& instr, double data[])
 {
     std::regex target_float("-?[0-9]+\\.[0-9]{3}");
     auto words_begin = std::sregex_iterator(instr.begin(), instr.end(), target_float);
@@ -34,13 +37,13 @@ void getMatch(std::string instr, double data[])
 // 重置Mirobot机器人
 void mirobot_reset(Mirobot &m)
 {
-    string msg = "$H";
+    const std::string msg = "$H";
     m.send_msg(msg, true);
     std::this_thread::sleep_for(std::chrono::seconds(13));
 }
 
 // 从字符串中提取带逗号的浮点数并存储到数组中
-int translation(std::string instr, double data[])
+int translation(const std::string& instr, double data[])
 {
     std::regex target_float("-?[0-9]+(\\.[0-9]+)?,");
     auto words_begin = std::sregex_iterator(instr.begin(), instr.end(), target_float);
@@ -57,106 +60,119 @@ int translation(std::string instr, double data[])
 }
 
 // Mirobot构造函数
-Mirobot::Mirobot(CommInterface* commPtr, int devicePort, bool debugFlag) : comm(commPtr), device_port(devicePort), debug(debugFlag) {
-    if (commPtr == nullptr)
-        throw std::invalid_argument("CommInterface pointer cannot be null");
+Mirobot::Mirobot(DeviceSession session, bool debugFlag)
+    : debug(debugFlag), session_(std::move(session)), time_temp{} {
+}
+
+Mirobot::Mirobot(CommInterface& comm, int devicePort, bool debugFlag, std::chrono::milliseconds timeout)
+    : Mirobot(DeviceSession(comm, devicePort, "", timeout), debugFlag) {
 }
 
 // 读取Mirobot状态
-string Mirobot::read_status()
+std::string Mirobot::read_status()
 {
-    string read_status = "";
-    while (comm->dataAvailable())
-    {
-        read_status += comm->readLine();
-    }
-    return read_status;
+    return session_.readAvailable();
 }
 
 // 读取一行数据
-string Mirobot::readline()
+std::string Mirobot::readline()
 {
-    return comm->readLine();
+    return session_.readLine();
 }
 
 // 获取当前时间并格式化
 void Mirobot::get_time()
 {
     time_t t = time(0);
-    strftime(time_temp, sizeof(time_temp), "%Y-%m-%d %H:%M:%S", localtime(&t));
+    tm time_info = {};
+#ifdef _WIN32
+    localtime_s(&time_info, &t);
+#else
+    tm* local_time = localtime(&t);
+    if (local_time != nullptr) {
+        time_info = *local_time;
+    }
+#endif
+    strftime(time_temp, sizeof(time_temp), "%Y-%m-%d %H:%M:%S", &time_info);
     status.time = time_temp;
 }
 
 // 发送消息到Mirobot
-void Mirobot::send_msg(string msg, bool wait, int delay)
+void Mirobot::send_msg(const std::string& msg, bool wait, int delay)
 {
-    string full_msg = "@" + to_string(device_port) + msg;
-    comm->writeData(full_msg);
-    if (debug) printf("message sent: %s\n", full_msg.c_str());
+    const std::string full_msg = session_.buildCommand(msg);
+    if (debug) {
+        std::printf("message sent: %s\n", full_msg.c_str());
+    }
+
     if (wait)
     {
-        cout << "waiting\n" << endl;
-        waitForEnd();
-        cout << "receive:" << read_status() << endl;
+        std::cout << "receive:" << session_.sendAndWait(msg) << std::endl;
+        return;
+    }
+
+    session_.send(msg);
+    if (delay > 0) {
+        std::this_thread::sleep_for(std::chrono::seconds(delay));
     }
 }
 
-string Mirobot::camera_msg(string msg, bool wait, int delay) {
-    comm->writeData(msg);
-    if (debug)
-        printf("message sent: %s\n", msg.c_str());
+std::string Mirobot::camera_msg(const std::string& msg, bool wait, int delay) {
+    if (debug) {
+        std::printf("message sent: %s\n", msg.c_str());
+    }
+
     if (wait)
     {
-        cout << "waiting" << endl;
-        waitForEnd();
-        return read_status();
+        return session_.sendRawAndWait(msg);
     }
-    std::this_thread::sleep_for(std::chrono::seconds(delay));
+
+    session_.sendRaw(msg);
+    if (delay > 0) {
+        std::this_thread::sleep_for(std::chrono::seconds(delay));
+    }
+
     return "";
 }
 
 // 等待串口结束
-void Mirobot::waitForEnd()
+bool Mirobot::waitForEnd(std::chrono::milliseconds timeout)
 {
-    while (!comm->dataAvailable())
-    {
-        std::this_thread::sleep_for(std::chrono::seconds(1));
-        cout << "waiting" << endl;
-    }
+    return session_.waitForData(timeout);
 }
 
 // 复位每个轴
 void Mirobot::home_individual()
 {
-    string msg = "$HH";
+    const std::string msg = "$HH";
     send_msg(msg, true);
 }
 
 // 同时复位所有轴
 void Mirobot::home_simultaneous()
 {
-    string msg = "$H";
+    const std::string msg = "$H";
     send_msg(msg, true);
 }
 
 // 解锁轴
 void Mirobot::unlock_shaft()
 {
-    string msg = "M50";
+    const std::string msg = "M50";
     send_msg(msg, true);
 }
 
 // 设定运动速度
 void Mirobot::set_speed(int speed)
 {
-    string msg = "F" + to_string(speed);
+    const std::string msg = "F" + std::to_string(speed);
     send_msg(msg, true);
 }
 
 // 关节旋转到指定位置
 void Mirobot::go_to_axis(double a1, double a2, double a3, double a4, double a5, double a6)
 {
-    string msg = "M21 G90";
+    std::string msg = "M21 G90";
     msg += " X" + doubleToString(a1);
     msg += " Y" + doubleToString(a2);
     msg += " Z" + doubleToString(a3);
@@ -179,7 +195,7 @@ void Mirobot::go_to_zero(int delay)
 // 增量移动各轴
 void Mirobot::increment_axis(double a1, double a2, double a3, double a4, double a5, double a6)
 {
-    string msg = "M21 G91 G1";
+    std::string msg = "M21 G91 G1";
     msg += " X" + doubleToString(a1);
     msg += " Y" + doubleToString(a2);
     msg += " Z" + doubleToString(a3);
@@ -192,7 +208,7 @@ void Mirobot::increment_axis(double a1, double a2, double a3, double a4, double 
 // 移动到坐标位置
 void Mirobot::go_to_cartesian_lin(int m, double x, double y, double z, double a, double b, double c, int delay)
 {
-    string msg = "M20 G90";
+    std::string msg = "M20 G90";
     if (m == motiontype.MOVJ)
         msg += " G01";
     else if (m == motiontype.MOVL)
@@ -201,7 +217,7 @@ void Mirobot::go_to_cartesian_lin(int m, double x, double y, double z, double a,
         msg += " G05";
     else
     {
-        printf("m: %d: ", m);
+        std::printf("m: %d: ", m);
         return;
     }
     msg += " X" + doubleToString(x);
@@ -216,7 +232,7 @@ void Mirobot::go_to_cartesian_lin(int m, double x, double y, double z, double a,
 // 笛卡尔空间中的线性增量
 void Mirobot::increment_cartesian_lin(int m, double x, double y, double z, double a, double b, double c, int delay)
 {
-    string msg = "M20 G91";
+    std::string msg = "M20 G91";
     if (m == motiontype.MOVJ)
         msg += " G1";
     else if (m == motiontype.MOVL)
@@ -271,50 +287,50 @@ void Mirobot::gripper_off()
 // 设置空气泵的PWM
 void Mirobot::set_air_pump(int pwm)
 {
-    string msg = "M3S" + to_string(pwm);
+    const std::string msg = "M3S" + std::to_string(pwm);
     send_msg(msg);
 }
 
 // 设置夹具的PWM
 void Mirobot::set_gripper(int pwm)
 {
-    string msg = "M4E" + to_string(pwm);
+    const std::string msg = "M4E" + std::to_string(pwm);
     send_msg(msg);
 }
 
 // 延时执行秒
 void Mirobot::set_delay_time(double t)
 {
-    string msg = "G4 P" + doubleToString(t);
+    const std::string msg = "G4 P" + doubleToString(t);
     send_msg(msg);
 }
 
 // 滑轨移动到
 void Mirobot::slider_move_to(double x, int speed)
 {
-    string msg = "G90 G01";
-    msg += " D" + doubleToString(x) + " F" + to_string(speed);
+    std::string msg = "G90 G01";
+    msg += " D" + doubleToString(x) + " F" + std::to_string(speed);
     send_msg(msg);
 }
 
 // 传送带移动到
 void Mirobot::conveyor_move_to(int c, double n, int speed)
 {
-    string msg = "";
+    std::string msg = "";
     if (movemode.relative == c)
         msg += "G91 G01";
     else if (movemode.absolute == c)
         msg += "G90 G01";
     else
         return;
-    msg += " D" + doubleToString(n) + " F" + to_string(speed);
+    msg += " D" + doubleToString(n) + " F" + std::to_string(speed);
     send_msg(msg);
 }
 
 // 关节移动
 void Mirobot::move_to_axis(int joint, int revolve, double n)
 {
-    string msg = "M21 G91 G01 ";
+    std::string msg = "M21 G91 G01 ";
     if (revolvedirection.ccw == revolve)
         n = -n;
     if (mirobotjoint.Joint1 == joint)
@@ -337,7 +353,7 @@ void Mirobot::move_to_axis(int joint, int revolve, double n)
 // 定向移动
 void Mirobot::direction_mobility(int d, double n, int delay)
 {
-    string msg = "M20 G91 G01 ";
+    std::string msg = "M20 G91 G01 ";
     double x = -n;
     if (movedirection.dforward == d)
         msg += "Y" + doubleToString(n);
@@ -359,7 +375,7 @@ void Mirobot::direction_mobility(int d, double n, int delay)
 // 门型轨迹移动，只用于笛卡尔模式
 void Mirobot::jump_move(int m, double x, double y, double z, double a, double b, double c)
 {
-    string msg = "M20 ";
+    std::string msg = "M20 ";
     if (movemode.relative == m)
         msg += "G91 G05";
     else if (movemode.absolute == m)
@@ -372,7 +388,7 @@ void Mirobot::jump_move(int m, double x, double y, double z, double a, double b,
 
 void Mirobot::set_arc_move(int mode, int revolve, double x, double y, double z, double r)
 {
-    string msg = "M20 ";
+    std::string msg = "M20 ";
     if (movemode.relative == mode)
         msg += "G91 ";
     else if (movemode.absolute == mode)
@@ -391,19 +407,16 @@ void Mirobot::set_arc_move(int mode, int revolve, double x, double y, double z, 
 
 void Mirobot::get_status()
 {
-    send_msg("?");
-    waitForEnd();
-    string readstr = read_status();
-    string showstr = "feedback : " + readstr;
-    if (readstr[0] != '<')
+    const std::string readstr = session_.sendAndWait("?");
+    if (readstr.empty() || readstr.front() != '<')
     {
-        get_status();
-        return;
+        throw std::runtime_error("Unexpected Mirobot status payload: " + readstr);
     }
-    cout << showstr << endl;
-    char tmp = readstr[1];
-    status.moving = ((tmp == 'I') ? false : true);
-    double state[13];
+
+    std::cout << "feedback : " << readstr << std::endl;
+    status.moving = (readstr[1] != 'I');
+
+    double state[13] = {};
     getMatch(readstr, state);
     status.A = state[0];
     status.B = state[1];
@@ -418,14 +431,20 @@ void Mirobot::get_status()
     status.CCRX = state[10];
     status.CCRY = state[11];
     status.CCRZ = state[12];
-    int num = read_status().find(">");
-    status.PumpPWM = int(readstr[num - 27]);
-    status.ValvePWM = int(readstr[num - 15]);
+
+    const std::size_t num = readstr.find('>');
+    if (num != std::string::npos && num >= 27) {
+        status.PumpPWM = static_cast<int>(readstr[num - 27]);
+    }
+    if (num != std::string::npos && num >= 15) {
+        status.ValvePWM = static_cast<int>(readstr[num - 15]);
+    }
+
     get_time();
 }
 
 Mirobot::~Mirobot()
 {
-    cout << endl;
-    printf("program over\n");
+    std::cout << std::endl;
+    std::printf("program over\n");
 }
