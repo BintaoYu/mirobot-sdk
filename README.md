@@ -1,6 +1,6 @@
-# Steel
+# Industrial Foundation
 
-Steel 是一个基于 CMake 的 C++ 动态链接库项目。仓库会构建三个共享库：
+Industrial Foundation（原 Steel）是一个基于 CMake 的 C++ 底层动态链接库项目。仓库会构建三个共享库：
 
 - `common`：通信抽象和传输实现，包括 `DeviceSession`、`SerialComm`、`TcpComm`、`TcpServerComm`、`UdpComm`
 - `motor`：电机控制库
@@ -86,9 +86,11 @@ cmake --build --preset native
 ctest --test-dir .build/native --output-on-failure -LE hardware
 ```
 
-## SDK 产物
+## 产物位置
 
-主工程构建后会 stage：
+### SDK stage 产物
+
+主工程构建后会把给外部项目消费的 SDK stage 到 `app/sdk/<platform-tag>/`：
 
 - `app/sdk/<platform-tag>/include/*.h`
 - `app/sdk/<platform-tag>/lib/*`
@@ -105,6 +107,19 @@ ctest --test-dir .build/native --output-on-failure -LE hardware
 - Linux：`libcommon.so`、`libmotor.so`、`libmirobot.so`
 - Windows MinGW：`libcommon.dll` + `libcommon.dll.a`，`libmotor.dll` + `libmotor.dll.a`，`libmirobot.dll` + `libmirobot.dll.a`
 - Windows MSVC ABI：`common.dll` + `common.lib`，`motor.dll` + `motor.lib`，`mirobot.dll` + `mirobot.lib`
+
+注意：`app/sdk/<platform-tag>/` 是 SDK stage 目录，不是 `app` 示例程序的输出目录。
+
+### app 构建产物
+
+`app` 的可执行程序输出在仓库根目录的 `.build/app-<preset>/bin/` 下：
+
+- native：`.build/app-native/bin/`
+- Linux ARM64：`.build/app-arm64/bin/`
+- Windows x64 MinGW：`.build/app-win-mingw/bin/`
+- Windows x64 MSVC ABI cross：`.build/app-win-msvc-cross/bin/`
+
+这些目录里包含 `tcp_comm_example`、`tcp_server_example`、`udp_comm_example`、`motor_example`、`mirobot_example` 和 `steel_sdk_smoke_test`。Windows 构建会带 `.exe` 后缀，并把运行需要的 SDK `.dll` 复制到同一个 `bin/` 目录。
 
 ## 主工程构建
 
@@ -132,6 +147,8 @@ cmake --preset native
 cmake --build --preset native
 ctest --preset native --output-on-failure
 ```
+
+构建完成后，示例程序和 smoke test 在 `../.build/app-native/bin/`。
 
 `app` 默认消费当前目标平台对应的 SDK。也可以手动指定 SDK tag 或 SDK root：
 
@@ -167,7 +184,7 @@ cmake --preset arm64
 cmake --build --preset arm64
 ```
 
-产物会 stage 到 `app/sdk/linux-aarch64/`。
+SDK 会 stage 到 `app/sdk/linux-aarch64/`，`app` 可执行程序在 `.build/app-arm64/bin/`。
 
 ### Windows x64 MinGW
 
@@ -180,7 +197,7 @@ cmake --preset win-mingw
 cmake --build --preset win-mingw
 ```
 
-产物会 stage 到 `app/sdk/windows-x86_64-mingw/`。
+SDK 会 stage 到 `app/sdk/windows-x86_64-mingw/`，`app` 可执行程序在 `.build/app-win-mingw/bin/`。
 
 ### Windows x64 MSVC ABI from Linux
 
@@ -201,7 +218,7 @@ cmake --preset win-msvc-cross
 cmake --build --preset win-msvc-cross
 ```
 
-产物会 stage 到 `app/sdk/windows-x86_64-msvc/`。这条路径使用 Linux host 上的 `clang-cl`、`lld-link`、`llvm-lib` 和 xwin sysroot，输出 MSVC ABI 兼容的 Windows x64 `.dll` 和 `.lib`。
+SDK 会 stage 到 `app/sdk/windows-x86_64-msvc/`，`app` 可执行程序在 `.build/app-win-msvc-cross/bin/`。这条路径使用 Linux host 上的 `clang-cl`、`lld-link`、`llvm-lib` 和 xwin sysroot，输出 MSVC ABI 兼容的 Windows x64 `.dll` 和 `.lib`。
 
 交叉编译出的 Windows 程序和 ARM64 程序在当前 Linux x86_64 host 上只验证配置、编译、链接和 SDK stage，不在本机直接运行。
 
@@ -232,7 +249,7 @@ cmake --build .build/win-msvc
 1. 打开对应示例文件
 2. 修改 IP、端口、监听地址、串口路径、设备号或命令
 3. 如果文件里有 `kEnable...Example` 开关，改成 `true`
-4. 重新构建并运行 `.build/app-<platform>/bin/` 下的目标程序
+4. 重新构建并运行 `.build/app-<preset>/bin/` 下的目标程序，例如 `.build/app-native/bin/motor_example` 或 `.build/app-win-mingw/bin/motor_example.exe`
 
 ## API 使用要点
 

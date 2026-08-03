@@ -8,13 +8,13 @@
   "configurePresets": [
     {
       "name": "native",
-      "displayName": "Steel App Native",
+      "displayName": "Industrial Foundation App Native",
       "generator": "Ninja",
       "binaryDir": "${sourceDir}/../.build/app-native"
     },
     {
       "name": "arm64",
-      "displayName": "Steel App Linux ARM64",
+      "displayName": "Industrial Foundation App Linux ARM64",
       "generator": "Ninja",
       "binaryDir": "${sourceDir}/../.build/app-arm64",
       "cacheVariables": {
@@ -23,7 +23,7 @@
     },
     {
       "name": "win-mingw",
-      "displayName": "Steel App Windows x64 MinGW",
+      "displayName": "Industrial Foundation App Windows x64 MinGW",
       "generator": "Ninja",
       "binaryDir": "${sourceDir}/../.build/app-win-mingw",
       "cacheVariables": {
@@ -32,7 +32,7 @@
     },
     {
       "name": "win-msvc-cross",
-      "displayName": "Steel App Windows x64 MSVC ABI Cross",
+      "displayName": "Industrial Foundation App Windows x64 MSVC ABI Cross",
       "generator": "Ninja",
       "binaryDir": "${sourceDir}/../.build/app-win-msvc-cross",
       "cacheVariables": {

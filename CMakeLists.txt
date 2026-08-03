@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.16)
-project(Steel LANGUAGES CXX)
+project(IndustrialFoundation LANGUAGES CXX)
 
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
@@ -56,7 +56,7 @@ if (STEEL_STAGE_APP_SDK)
         COMMAND ${CMAKE_COMMAND} -E rm -rf ${STEEL_APP_STAGE_DIR}
         COMMAND ${CMAKE_COMMAND} -E make_directory ${STEEL_APP_STAGE_DIR}
         COMMAND ${CMAKE_COMMAND} --install ${CMAKE_BINARY_DIR} --prefix ${STEEL_APP_STAGE_DIR} ${STEEL_STAGE_CONFIG_ARGS}
-        COMMENT "Staging Steel shared libraries and public headers into app/sdk/${STEEL_APP_SDK_TAG}"
+        COMMENT "Staging Industrial Foundation shared libraries and public headers into app/sdk/${STEEL_APP_SDK_TAG}"
         VERBATIM
     )
 

@@ -2,10 +2,23 @@
 #include "shared_udp_comm.h"
 #include <chrono>
 #include <cstdio>
+#include <exception>
 #include <iostream>
 #include <string>
 #include <thread>
 #include <utility>
+
+namespace {
+
+void report_command_failure(const std::string& command, const std::exception& error) {
+    std::cerr << "Motor command failed: " << command << ": " << error.what() << std::endl;
+}
+
+void report_unknown_command_failure(const std::string& command) {
+    std::cerr << "Motor command failed: " << command << ": unknown error" << std::endl;
+}
+
+} // namespace
 
 Motor::Motor(DeviceSession session, bool debugFlag)
     : debug(debugFlag), owned_comm_(), session_(std::move(session)) {
@@ -32,12 +45,19 @@ void Motor::send_msg(const std::string& msg, bool wait) {
         std::printf("Message sent: %s\n", full_msg.c_str());
     }
 
-    if (wait) {
-        std::cout << "receive:" << session_.sendAndWait(msg) << std::endl;
-        return;
-    }
+    try {
+        if (wait) {
+            const std::string response = session_.sendAndWait(msg);
+            std::cout << "receive:" << response << std::endl;
+            return;
+        }
 
-    session_.send(msg);
+        session_.send(msg);
+    } catch (const std::exception& error) {
+        report_command_failure(full_msg, error);
+    } catch (...) {
+        report_unknown_command_failure(full_msg);
+    }
 }
 
 std::string Motor::read_status() {

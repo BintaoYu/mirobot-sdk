@@ -69,6 +69,6 @@ int main() {
     }
 
     tcp_comm.disconnect();
-    std::cout << "Steel SDK smoke test passed." << std::endl;
+    std::cout << "Industrial Foundation SDK smoke test passed." << std::endl;
     return 0;
 }

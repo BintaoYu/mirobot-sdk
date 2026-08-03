@@ -8,13 +8,13 @@
   "configurePresets": [
     {
       "name": "native",
-      "displayName": "Steel Native",
+      "displayName": "Industrial Foundation Native",
       "generator": "Ninja",
       "binaryDir": "${sourceDir}/.build/native"
     },
     {
       "name": "arm64",
-      "displayName": "Steel Linux ARM64",
+      "displayName": "Industrial Foundation Linux ARM64",
       "generator": "Ninja",
       "binaryDir": "${sourceDir}/.build/arm64",
       "cacheVariables": {
@@ -23,7 +23,7 @@
     },
     {
       "name": "win-mingw",
-      "displayName": "Steel Windows x64 MinGW",
+      "displayName": "Industrial Foundation Windows x64 MinGW",
       "generator": "Ninja",
       "binaryDir": "${sourceDir}/.build/win-mingw",
       "cacheVariables": {
@@ -32,7 +32,7 @@
     },
     {
       "name": "win-msvc-cross",
-      "displayName": "Steel Windows x64 MSVC ABI Cross",
+      "displayName": "Industrial Foundation Windows x64 MSVC ABI Cross",
       "generator": "Ninja",
       "binaryDir": "${sourceDir}/.build/win-msvc-cross",
       "cacheVariables": {
