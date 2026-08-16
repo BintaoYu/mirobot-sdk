@@ -1,5 +1,9 @@
 # Repository Guidelines
 
+Start with [README.md](README.md), [docs/architecture.md](docs/architecture.md),
+[docs/plan.md](docs/plan.md), [docs/status.md](docs/status.md), and the parent
+[platform guidelines](../AGENTS.md).
+
 ## Project Structure & Module Organization
 `common/include` and `common/src` contain shared communication abstractions such as `CommInterface`, `SerialComm`, `TcpComm`, `TcpServerComm`, `UdpComm`, and `DeviceSession`. `libs/motor` and `libs/mirobot` provide device-specific shared libraries. `app/` is a standalone SDK consumer and must use staged headers and dynamic libraries from `app/sdk/<platform-tag>/` instead of linking project sources directly. `tests/main_test.cpp` builds the fixed-parameter `steel_test` executable used for direct motor hardware checks. The root `CMakeLists.txt`, `CMakePresets.json`, and `app/CMakePresets.json` provide unified build entry points. Keep new headers next to their owning module; expose only reusable interfaces through `common/include`.
 
@@ -28,3 +32,9 @@ Test coverage is centered on transport-backed behavior and SDK consumption. Add 
 
 ## Commit & Pull Request Guidelines
 Recent history uses short subjects such as `tcp_comm`, `v2.0`, and date tags. Keep commits small and topic-focused, but prefer descriptive subjects over date-only labels, for example `motor: guard wait loop`. PRs should include a short summary, affected modules, the exact build or test commands run, and any hardware assumptions. For protocol changes, include a sample command, log, or observed device response.
+
+## Documentation Updates
+
+Update `README.md` for user commands, `docs/architecture.md` for API/module
+boundaries, `docs/plan.md` for ordered remaining work, and `docs/status.md` for
+completed capability and verification changes. Do not create a parallel roadmap.
