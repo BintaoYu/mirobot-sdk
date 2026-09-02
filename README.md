@@ -286,6 +286,31 @@ Motor motor(session);
 
 `DeviceSession` 负责设备号前缀、原始发送和同步等待，默认同步等待超时为 1000ms。`Motor::set_speed()`、`Mirobot::set_speed()` 这类同步接口在超时后会抛出 `std::runtime_error`。
 
+I/O Adapter SDK 通过 `IoAdapterClient` 提供 event-driven request/response：
+
+```cpp
+IoAdapterClient client;
+client.set_default_completion_handler([](IoResponse response) {
+    if (response.terminal()) {
+        // response.request_id、response.state 和 response.error 是最终事实。
+    }
+});
+
+const IoRequestResult accepted = client.io_request_async(
+    adapter_key, payload, deadline_ns);
+IoResponse completed = client.io_request_sync(adapter_key, payload, deadline_ns);
+```
+
+async callback 先收到 `Accepted`，随后收到一次 terminal response。terminal state 明确区分
+`Completed`、`Timeout`、`DeadlineMissed`、`TransportError`、`AdapterUnavailable` 和
+`InvalidRequest`。`deadline_ns` 是 monotonic absolute deadline，只用于 bounded
+coordination，不构成 guaranteed deadline。使用共享 byte storage 时可用
+`IoPayload::from_shared()` 避免 SDK 边界的额外 payload copy；普通 `IoPayloadView` 会执行
+一次显式 SDK-owned copy。
+
+`CommInterfaceIoAdapter`、`TcpClientIoAdapter` 和 `Rs485IoAdapter` 复用既有通信 primitive，
+而 `DeviceSession`、Motor 和 Mirobot 的 legacy synchronous/injected APIs 保持不变。
+
 ## 测试
 
 非硬件测试：

@@ -16,6 +16,9 @@ target_link_libraries(mirobot_test PRIVATE mirobot)
 add_steel_test(device_session_test device_session_test.cpp)
 target_link_libraries(device_session_test PRIVATE common)
 
+add_steel_test(io_adapter_test io_adapter_test.cpp)
+target_link_libraries(io_adapter_test PRIVATE common)
+
 add_steel_test(tcp_comm_test tcp_comm_test.cpp)
 target_link_libraries(tcp_comm_test PRIVATE common)
 

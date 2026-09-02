@@ -90,7 +90,7 @@ bool SerialComm::isOpen() const {
     return handle != kInvalidSerialHandle;
 }
 
-SerialComm::~SerialComm() {
+void SerialComm::close() noexcept {
     if (!isOpen()) {
         return;
     }
@@ -98,8 +98,13 @@ SerialComm::~SerialComm() {
 #ifdef _WIN32
     CloseHandle(nativeHandle(handle));
 #else
-    close(nativeHandle(handle));
+    ::close(nativeHandle(handle));
 #endif
+    handle = kInvalidSerialHandle;
+}
+
+SerialComm::~SerialComm() {
+    close();
 }
 
 void SerialComm::configurePort() {

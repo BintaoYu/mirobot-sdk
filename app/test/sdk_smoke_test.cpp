@@ -1,4 +1,5 @@
 #include "device_session.h"
+#include "io_adapter.h"
 #include "mirobot.h"
 #include "motor.h"
 #include "recording_comm.h"
@@ -7,6 +8,7 @@
 #include "udp_comm.h"
 #include <iostream>
 #include <string>
+#include <vector>
 
 namespace {
 
@@ -49,6 +51,16 @@ int main() {
 
     if (comm.writes()[1] != "@2M21 G90 X1.00 Y2.50 Z-3.00 A4.25 B5.00 C6.00 F2000") {
         return fail("Mirobot smoke test saw an unexpected command string.");
+    }
+
+    const std::vector<std::uint8_t> io_bytes{'i', 'o'};
+    IoAdapterClient io_client(std::chrono::milliseconds(20));
+    const IoResponse unavailable = io_client.io_request_sync(
+        999,
+        IoPayload::copy_of(IoPayloadView{io_bytes.data(), io_bytes.size()}),
+        0);
+    if (unavailable.state != IoRequestState::AdapterUnavailable) {
+        return fail("I/O SDK should expose an unavailable adapter result.");
     }
 
     TcpComm tcp_comm;
