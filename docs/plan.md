@@ -1,5 +1,13 @@
 # Industrial Foundation Plan
 
+## 2026-09-03 integration checkpoint
+
+1. [x] Publish the canonical I/O Adapter request/result contract for Softbus consumption, including stable
+   request IDs, lifecycle states, payload ownership and monotonic absolute deadlines.
+2. [x] Verify native SDK and staged consumer integration in the platform next window.
+3. [ ] Complete future cancellation/peer-identity expansion and physical-device/network acceptance only under
+   an explicitly authorized validation window.
+
 ## 当前目标
 
 保持设备通信 SDK 小而稳定，并确保 native、ARM64、Windows MinGW 与 Windows MSVC ABI consumer 路径可复现。

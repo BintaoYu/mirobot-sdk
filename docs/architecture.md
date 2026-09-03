@@ -22,6 +22,19 @@ Industrial Foundation 提供设备通信抽象和 Motor/Mirobot 公共 SDK。主
 - 固定现场 IP/串口/电机命令属于 hardware test 或 commissioning，不进入默认无设备回归。
 - SDK ABI、timeout、错误结果与 cancellation 变化必须同时验证主工程和独立 `app` consumer。
 
+## 2026-09-03 Softbus integration boundary
+
+The public SDK is the lower-layer I/O contract consumed by the Softbus Runtime. Both layers use the
+same eight numeric request states: `Unknown`, `Accepted`, `Completed`, `Timeout`, `DeadlineMissed`,
+`TransportError`, `AdapterUnavailable` and `InvalidRequest`. `IoRequestId` is `uint64_t` in the public
+API; Softbus may serialize a checked narrower ID only at its existing shared-memory ABI boundary.
+
+`deadline_ns` is an absolute value from the monotonic clock and `0` means no adapter deadline. SDK
+submission preserves `adapter_key`, request ID and deadline through accepted then exactly one terminal
+completion. The SDK coordinates and reports timeout/deadline outcomes but does not establish a physical
+device deadline guarantee or WCET; `deadline_supported`, `deadline_observed` and
+`deadline_guaranteed` are evidence facts owned by the Runtime adapter layer.
+
 ## I/O Adapter SDK
 
 `common/include/io_adapter.h` 提供独立的 `IoAdapterClient` contract。其

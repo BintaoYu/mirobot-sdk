@@ -8,6 +8,17 @@ Industrial Foundation（原 Steel）是一个基于 CMake 的 C++ 底层动态�
 
 主工程构建完成后，会把动态库和公开头文件按目标平台 stage 到 `app/sdk/<platform-tag>/`。`app/` 是独立的 SDK 消费工程，只依赖 stage 出来的头文件和库，不直接引用主工程源码。
 
+## 2026-09-03 integration window
+
+Foundation 是统一 I/O Adapter 链路的设备 SDK authority：Softbus Runtime 通过公开
+`IoAdapterClient`/backend contract 到达 `Rs485IoAdapter` 或 `TcpClientIoAdapter`，不会复制
+设备通信实现。`IoRequestState`、`adapter_key`、`IoRequestId`、`deadline_ns` 和 accepted/terminal
+语义已与 Softbus Runtime 对齐；`deadline_ns` 是 monotonic absolute deadline，`0` 表示不设置
+adapter deadline，物理设备服务时间不作 guarantee claim。
+
+本窗口只完成 SDK/runtime integration、stage consumer、build 和 contract tests；未连接现场设备、
+未执行正式 Run/Pilot，也未修改宿主。
+
 项目文档入口：[架构](docs/architecture.md)、[计划](docs/plan.md)、[状态](docs/status.md)、[agent 规则](AGENTS.md)。
 
 ## 目录结构

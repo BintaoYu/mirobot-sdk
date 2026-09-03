@@ -1,5 +1,17 @@
 # Industrial Foundation Status
 
+## 2026-09-03 platform-next-integration
+
+- I/O Adapter SDK ✅：Foundation public `IoAdapterClient`/backend contract is the canonical lower-layer
+  contract for Softbus Runtime/RS485/TCP integration.
+- Lifecycle and deadline semantics ✅：accepted then one terminal state, stable `uint64_t` request ID,
+  adapter key/payload propagation, absolute monotonic `deadline_ns`, and `0=no adapter deadline`.
+  The SDK reports coordination outcomes without claiming physical-device deadline guarantee or WCET.
+- Native build, Foundation CTest, staged SDK consumer and I/O Adapter tests passed in this window. Real
+  device/network acceptance and cancellation/peer-identity expansion remain incomplete.
+- Current formal S0 and target installation are outside Foundation's authority; Gate 0B evidence remains
+  bound to its original candidate.
+
 ## 当前能力
 
 - 构建 `common`、`motor`、`mirobot` 共享库。
