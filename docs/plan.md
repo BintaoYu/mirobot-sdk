@@ -4,7 +4,8 @@
 
 1. [x] Publish the canonical I/O Adapter request/result contract for Softbus consumption, including stable
    request IDs, lifecycle states, payload ownership and monotonic absolute deadlines.
-2. [x] Verify native SDK and staged consumer integration in the platform next window.
+2. [x] Verify native SDK and staged consumer integration in the platform next window, including the
+   final Window H Apps/Softbus candidate consumption.
 3. [ ] Complete future cancellation/peer-identity expansion and physical-device/network acceptance only under
    an explicitly authorized validation window.
 

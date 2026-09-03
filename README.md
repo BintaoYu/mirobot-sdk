@@ -16,8 +16,10 @@ Foundation 是统一 I/O Adapter 链路的设备 SDK authority：Softbus Runtime
 语义已与 Softbus Runtime 对齐；`deadline_ns` 是 monotonic absolute deadline，`0` 表示不设置
 adapter deadline，物理设备服务时间不作 guarantee claim。
 
-本窗口只完成 SDK/runtime integration、stage consumer、build 和 contract tests；未连接现场设备、
-未执行正式 Run/Pilot，也未修改宿主。
+Window H 的最终集成使用本项目重新 stage 的 SDK，并通过独立 consumer 和 Apps
+benchmark-s0 Build 验证；Foundation 不拥有 Softbus target installer 或 Performance Run authority。
+最终 S0 的 18/18 target cells 因而消费同一 staged SDK identity，但本项目仍未连接现场设备、
+未执行硬件 commissioning，也不把 loopback transport smoke 写成设备时限保证。
 
 项目文档入口：[架构](docs/architecture.md)、[计划](docs/plan.md)、[状态](docs/status.md)、[agent 规则](AGENTS.md)。
 

@@ -1,5 +1,13 @@
 # Industrial Foundation Architecture
 
+## Window H integration status
+
+The staged SDK was rebuilt and consumed by the final integration candidate. Its SDK tree identity is
+recorded as d0b6e0f3298b6b03f9fa36129105ef041fca95026a133348592fabe20d4c6e8f in the bounded
+integration evidence. Foundation remains the public device-SDK authority; Softbus owns target
+installation/runtime lifecycle and Apps owns the Project-first S0 definition. The resulting
+same-device-cross-runtime-transport-smoke is not physical hardware or deadline evidence.
+
 ## 定位
 
 Industrial Foundation 提供设备通信抽象和 Motor/Mirobot 公共 SDK。主工程构建共享库并按目标平台 stage 头文件与动态库；`app/` 是独立 consumer，只使用 staged SDK，不直接链接项目源码。

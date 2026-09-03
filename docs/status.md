@@ -9,8 +9,11 @@
   The SDK reports coordination outcomes without claiming physical-device deadline guarantee or WCET.
 - Native build, Foundation CTest, staged SDK consumer and I/O Adapter tests passed in this window. Real
   device/network acceptance and cancellation/peer-identity expansion remain incomplete.
-- Current formal S0 and target installation are outside Foundation's authority; Gate 0B evidence remains
-  bound to its original candidate.
+- The final integration rebuilt and consumed the staged SDK; its recorded tree identity is
+  d0b6e0f3298b6b03f9fa36129105ef041fca95026a133348592fabe20d4c6e8f. The complete S0 target baseline
+  remains owned by Apps/Softbus and is scoped to same-device-cross-runtime-transport-smoke.
+- Foundation does not own formal S0 target installation or Run lifecycle; Gate0B and other historical
+  evidence remain bound to their original candidates.
 
 ## 当前能力
 
