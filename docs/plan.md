@@ -1,5 +1,12 @@
 # Industrial Foundation Plan
 
+## 2026-09-18 freeze note
+
+- [x] Foundation stays frozen during the platform's single-Runtime refactor; Apps consumes the
+  staged SDK optionally (Motor/Mirobot Algorithms only). Any future Foundation change must
+  keep the staged SDK layout `app/sdk/<platform-tag>/{include,lib}` that Apps' `ensure_steel_sdk`
+  and generated CMake expect.
+
 ## 2026-09-03 integration checkpoint
 
 1. [x] Publish the canonical I/O Adapter request/result contract for Softbus consumption, including stable

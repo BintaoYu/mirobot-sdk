@@ -1,5 +1,13 @@
 # Industrial Foundation Status
 
+## 2026-09-18 frozen optional dependency of Industrial Apps
+
+- Industrial Apps' single-Runtime refactor (P4) treats the staged Foundation SDK as an
+  optional Build input: it is resolved (`STEEL_SDK_ROOT` or the sibling checkout) only when a
+  compiled Algorithm calls `Motor`/`Mirobot`, and projects without such calls build, package
+  and run without it. No Foundation source, contract or staged SDK identity changed in this
+  window; the Softbus Runtime daemon remains the I/O Adapter consumer.
+
 ## 2026-09-03 platform-next-integration
 
 - I/O Adapter SDK ✅：Foundation public `IoAdapterClient`/backend contract is the canonical lower-layer
