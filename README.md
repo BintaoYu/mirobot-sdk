@@ -2,30 +2,19 @@
 
 Industrial Foundation（原 Steel）是一个基于 CMake 的 C++ 底层动态链接库项目。仓库会构建三个共享库：
 
-- `common`：通信抽象和传输实现，包括 `DeviceSession`、`SerialComm`、`TcpComm`、`TcpServerComm`、`UdpComm`
+- `common`：通信抽象和传输实现，包括 `DeviceSession`、`SerialComm`、`TcpComm`、`TcpServerComm`、`UdpComm`、`SharedUdpComm`，以及 I/O Adapter SDK（`io_adapter.h`）
 - `motor`：电机控制库
 - `mirobot`：Mirobot 控制库
 
 主工程构建完成后，会把动态库和公开头文件按目标平台 stage 到 `app/sdk/<platform-tag>/`。`app/` 是独立的 SDK 消费工程，只依赖 stage 出来的头文件和库，不直接引用主工程源码。
 
-## 2026-09-03 integration window
-
-Foundation 是统一 I/O Adapter 链路的设备 SDK authority：Softbus Runtime 通过公开
-`IoAdapterClient`/backend contract 到达 `Rs485IoAdapter` 或 `TcpClientIoAdapter`，不会复制
-设备通信实现。`IoRequestState`、`adapter_key`、`IoRequestId`、`deadline_ns` 和 accepted/terminal
-语义已与 Softbus Runtime 对齐；`deadline_ns` 是 monotonic absolute deadline，`0` 表示不设置
-adapter deadline，物理设备服务时间不作 guarantee claim。
-
-Window H 的最终集成使用本项目重新 stage 的 SDK，并通过独立 consumer 和 Apps
-benchmark-s0 Build 验证；Foundation 不拥有 Softbus target installer 或 Performance Run authority。
-最终 S0 的 18/18 target cells 因而消费同一 staged SDK identity，但本项目仍未连接现场设备、
-未执行硬件 commissioning，也不把 loopback transport smoke 写成设备时限保证。
+本项目自 2026-09-18 起冻结，是 Industrial-Apps 的可选构建期依赖；Virtualized-Softbus 不链接本项目，只镜像 `IoRequestState` 数值（见 [架构](docs/architecture.md)「消费方与边界」）。
 
 项目文档入口：[架构](docs/architecture.md)、[计划](docs/plan.md)、[状态](docs/status.md)、[agent 规则](AGENTS.md)。
 
 ## 目录结构
 
-- `common/include/`：公开通信接口和会话头文件
+- `common/include/`：公开通信接口、会话与 I/O Adapter 头文件（`comm_interface.h`、`serial_comm.h`、`tcp_comm.h`、`tcp_server_comm.h`、`udp_comm.h`、`shared_udp_comm.h`、`device_session.h`、`io_adapter.h`）
 - `common/src/`：通信层实现
 - `libs/motor/`：`motor` 动态库源码和公开头文件
 - `libs/mirobot/`：`mirobot` 动态库源码和公开头文件
@@ -33,6 +22,7 @@ benchmark-s0 Build 验证；Foundation 不拥有 Softbus target installer 或 Pe
 - `app/`：独立 SDK 消费工程
 - `app/example/`：外部项目使用模板
 - `app/test/`：SDK smoke test
+- `app/support/`：`app` 测试辅助（`recording_comm.h`）
 - `cmake/`：平台标签和交叉编译 toolchain
 - `scripts/`：辅助脚本，例如 Linux host 上准备 Windows MSVC ABI 交叉工具链
 
@@ -316,8 +306,7 @@ IoResponse completed = client.io_request_sync(adapter_key, payload, deadline_ns)
 
 async callback 先收到 `Accepted`，随后收到一次 terminal response。terminal state 明确区分
 `Completed`、`Timeout`、`DeadlineMissed`、`TransportError`、`AdapterUnavailable` 和
-`InvalidRequest`。`deadline_ns` 是 monotonic absolute deadline，只用于 bounded
-coordination，不构成 guaranteed deadline。使用共享 byte storage 时可用
+`InvalidRequest`。`deadline_ns` 是 monotonic absolute deadline，只用于协调。使用共享 byte storage 时可用
 `IoPayload::from_shared()` 避免 SDK 边界的额外 payload copy；普通 `IoPayloadView` 会执行
 一次显式 SDK-owned copy。
 

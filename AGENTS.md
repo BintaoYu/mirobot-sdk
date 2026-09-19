@@ -5,24 +5,10 @@ Start with [README.md](README.md), [docs/architecture.md](docs/architecture.md),
 [platform guidelines](../AGENTS.md).
 
 ## Project Structure & Module Organization
-`common/include` and `common/src` contain shared communication abstractions such as `CommInterface`, `SerialComm`, `TcpComm`, `TcpServerComm`, `UdpComm`, and `DeviceSession`. `libs/motor` and `libs/mirobot` provide device-specific shared libraries. `app/` is a standalone SDK consumer and must use staged headers and dynamic libraries from `app/sdk/<platform-tag>/` instead of linking project sources directly. `tests/main_test.cpp` builds the fixed-parameter `steel_test` executable used for direct motor hardware checks. The root `CMakeLists.txt`, `CMakePresets.json`, and `app/CMakePresets.json` provide unified build entry points. Keep new headers next to their owning module; expose only reusable interfaces through `common/include`.
+`common/include` and `common/src` contain shared communication abstractions such as `CommInterface`, `SerialComm`, `TcpComm`, `TcpServerComm`, `UdpComm`, `SharedUdpComm`, `DeviceSession`, and the `IoAdapterClient` SDK (`io_adapter.h`). `libs/motor` and `libs/mirobot` provide device-specific shared libraries. `app/` is a standalone SDK consumer and must use staged headers and dynamic libraries from `app/sdk/<platform-tag>/` instead of linking project sources directly. `tests/main_test.cpp` builds the fixed-parameter `steel_test` executable used for direct motor hardware checks. The root `CMakeLists.txt`, `CMakePresets.json`, and `app/CMakePresets.json` provide unified build entry points. Keep new headers next to their owning module; expose only reusable interfaces through `common/include`.
 
 ## Build, Test, and Development Commands
-Preferred entry point: `./steel ...`
-
-`./steel native` builds the root project, runs root CTest, builds `app`, and runs the `app` smoke test. Root CTest includes the hardware-labeled `steel_test`, so use `ctest --test-dir .build/native --output-on-failure -LE hardware` when no device is available.
-
-`./steel arm64` builds the root project and `app` for Linux ARM64.
-
-`./steel win` builds the root project and `app` for Windows x64 with MinGW.
-
-`./steel msvc-cross` builds the root project and `app` for Windows x64 MSVC ABI from Linux.
-
-`./steel motor-test` rebuilds and runs `steel_test`.
-
-`./steel clean` removes the unified `.build/` directory, and `./steel clean-legacy` removes old scattered `build*` and `app/build*` directories.
-
-Manual CMake usage is still supported, but new build directories should live under `.build/` instead of creating more root-level `build-*` directories. Cross-builds should be validated through `./steel arm64`, `./steel win`, and especially `./steel msvc-cross` when changing public headers, install rules, or SDK staging.
+Preferred entry point: `./steel ...`; the commands and their meaning are listed in [README.md](README.md#快速命令). Root CTest includes the hardware-labeled `steel_test`, so use `ctest --test-dir .build/native --output-on-failure -LE hardware` when no device is available. New build directories live under `.build/`. Validate cross-builds (`./steel arm64`, `./steel win`, `./steel msvc-cross`) when changing public headers, install rules, or SDK staging. The project is frozen as an optional build-time dependency of Industrial-Apps; Softbus mirrors the `IoRequestState` values instead of linking this project (see [docs/architecture.md](docs/architecture.md)).
 
 ## Coding Style & Naming Conventions
 Use 4-space indentation. Preserve the local brace and spacing style of the file you are editing rather than reformatting unrelated lines. Class names use `PascalCase`; filenames and many methods use `snake_case`, for example `motor.cpp` and `set_speed`. Follow the dominant style within each module instead of mixing conventions in one file. Keep headers minimal, prefer existing include-guard patterns, and avoid introducing new `using namespace std;` directives.

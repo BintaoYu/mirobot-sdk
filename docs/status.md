@@ -1,49 +1,31 @@
 # Industrial Foundation Status
 
-## 2026-09-18 frozen optional dependency of Industrial Apps
-
-- Industrial Apps' single-Runtime refactor (P4) treats the staged Foundation SDK as an
-  optional Build input: it is resolved (`STEEL_SDK_ROOT` or the sibling checkout) only when a
-  compiled Algorithm calls `Motor`/`Mirobot`, and projects without such calls build, package
-  and run without it. No Foundation source, contract or staged SDK identity changed in this
-  window; the Softbus Runtime daemon remains the I/O Adapter consumer.
-
-## 2026-09-03 platform-next-integration
-
-- I/O Adapter SDK ✅：Foundation public `IoAdapterClient`/backend contract is the canonical lower-layer
-  contract for Softbus Runtime/RS485/TCP integration.
-- Lifecycle and deadline semantics ✅：accepted then one terminal state, stable `uint64_t` request ID,
-  adapter key/payload propagation, absolute monotonic `deadline_ns`, and `0=no adapter deadline`.
-  The SDK reports coordination outcomes without claiming physical-device deadline guarantee or WCET.
-- Native build, Foundation CTest, staged SDK consumer and I/O Adapter tests passed in this window. Real
-  device/network acceptance and cancellation/peer-identity expansion remain incomplete.
-- The final integration rebuilt and consumed the staged SDK; its recorded tree identity is
-  d0b6e0f3298b6b03f9fa36129105ef041fca95026a133348592fabe20d4c6e8f. The complete S0 target baseline
-  remains owned by Apps/Softbus and is scoped to same-device-cross-runtime-transport-smoke.
-- Foundation does not own formal S0 target installation or Run lifecycle; Gate0B and other historical
-  evidence remain bound to their original candidates.
-
 ## 当前能力
 
-- 构建 `common`、`motor`、`mirobot` 共享库。
-- 将公开头文件和库 stage 到 `app/sdk/<platform-tag>/`。
+- 构建 `common`、`motor`、`mirobot` 共享库，并把公开头文件和库 stage 到 `app/sdk/<platform-tag>/`。
 - 支持 native、Linux ARM64、Windows x64 MinGW 和 Linux-hosted MSVC ABI cross build。
-- `app/` 可作为独立 SDK consumer 构建示例与 smoke test。
-- `common` 已提供 event-driven `IoAdapterClient` SDK：stable request ID、accepted/terminal
-  callback、bounded sync wrapper、absolute monotonic deadline 传播和 typed
-  `IoError`/request state；`TcpClientIoAdapter`/`Rs485IoAdapter` 复用现有 TCP/serial
-  communication primitives。
+- `app/` 作为独立 SDK consumer 构建示例与 smoke test。
+- `common` 提供 event-driven `IoAdapterClient` SDK（stable request ID、accepted/terminal callback、bounded sync
+  wrapper、绝对 monotonic deadline、typed `IoError`/request state）；`TcpClientIoAdapter`/`Rs485IoAdapter`
+  复用现有 TCP/serial primitive。
+- 自 2026-09-18 起冻结，作为 Industrial-Apps 的可选构建期依赖；Softbus 不消费本项目（见
+  [architecture.md](architecture.md)「消费方与边界」）。
 
 ## 验证边界
 
-- `./steel native` 包含主工程和 `app` 验证，但注册的 `steel_test` 依赖真实硬件。
-- 无设备环境应使用 `ctest --test-dir .build/native --output-on-failure -LE hardware`。
-- loopback transport 和 build smoke 不构成 Motor/Mirobot 现场验收。
-- I/O Adapter tests 是 contract/transport correctness evidence，不声称 deadline guarantee、
-  WCET 或现场设备验收。
+- `./steel native` 运行的主工程 CTest 包含 `hardware` 标签的 `steel_test`；无设备环境使用
+  `ctest --test-dir .build/native --output-on-failure -LE hardware`。
+- 无硬件测试只证明构建、传输合同和 SDK 消费路径；Motor/Mirobot 现场验收需要真实设备。
 
-## 当前未完成
+## 最近验证
 
-- cancellation 与 peer identity 的后续公共语义仍未完成；当前 timeout/deadline/result
-  contract 已冻结。
+- 2026-09-19：native Release 构建（Ninja，`BUILD_TESTING=ON`）+ `ctest -LE hardware`：8/8 通过（motor、mirobot、device_session、io_adapter、tcp_comm、udp_comm、shared_udp_device、tcp_server_comm）。
+
+## 未完成
+
+- cancellation 与 peer identity 的公共语义。
 - 真实设备、网络和安全条件下的可重复验收记录。
+
+## 历史
+
+2026-09-03 集成窗口的原文见 [archive/integration-2026-09-03.md](archive/integration-2026-09-03.md)。
