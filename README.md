@@ -8,7 +8,7 @@ Industrial Foundation（原 Steel）是一个基于 CMake 的 C++ 底层动态�
 
 主工程构建完成后，会把动态库和公开头文件按目标平台 stage 到 `app/sdk/<platform-tag>/`。`app/` 是独立的 SDK 消费工程，只依赖 stage 出来的头文件和库，不直接引用主工程源码。
 
-本项目自 2026-09-18 起冻结，是 Industrial-Apps 的可选构建期依赖；Virtualized-Softbus 不链接本项目，只镜像 `IoRequestState` 数值（见 [架构](docs/architecture.md)「消费方与边界」）。
+本项目自 2026-09-18 起冻结，是 Industrial-Apps 的可选构建期依赖；Industrial-Runtime 不链接本项目，只镜像 `IoRequestState` 数值（见 [架构](docs/architecture.md)「消费方与边界」）。
 
 项目文档入口：[架构](docs/architecture.md)、[计划](docs/plan.md)、[状态](docs/status.md)、[agent 规则](AGENTS.md)。
 
