@@ -14,7 +14,6 @@ Usage:
   ./steel msvc-cross
   ./steel motor-test
   ./steel clean
-  ./steel clean-legacy
 
 What each command does:
   native       Build root + tests, then build app + tests
@@ -23,7 +22,6 @@ What each command does:
   msvc-cross   Build root, then build app for Windows x64 with MSVC ABI from Linux
   motor-test   Build steel_test and run the direct Motor hardware entry
   clean        Remove the unified .build/ directory
-  clean-legacy Remove old scattered build*/app/build* directories
 EOF
 }
 
@@ -50,22 +48,6 @@ ensure_msvc_cross_toolchain() {
     fi
 
     run "${REPO_ROOT}/scripts/setup_windows_msvc_cross_toolchain.sh"
-}
-
-clean_legacy() {
-    shopt -s nullglob
-    local paths=(
-        "${REPO_ROOT}"/build
-        "${REPO_ROOT}"/build-*
-        "${REPO_ROOT}"/build_*
-        "${APP_ROOT}"/build
-        "${APP_ROOT}"/build-*
-        "${APP_ROOT}"/build_*
-        "${APP_ROOT}"/app/build*
-    )
-    if [ "${#paths[@]}" -gt 0 ]; then
-        run rm -rf "${paths[@]}"
-    fi
 }
 
 case "${1:-}" in
@@ -95,9 +77,6 @@ case "${1:-}" in
         ;;
     clean)
         run rm -rf "${REPO_ROOT}/.build"
-        ;;
-    clean-legacy)
-        clean_legacy
         ;;
     ""|-h|--help|help)
         usage

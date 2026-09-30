@@ -70,7 +70,6 @@ MSVC ABI 交叉编译还需要本地 LLVM 和 xwin sysroot。可以用仓库脚�
 ./steel msvc-cross
 ./steel motor-test
 ./steel clean
-./steel clean-legacy
 ```
 
 命令含义：
@@ -81,15 +80,8 @@ MSVC ABI 交叉编译还需要本地 LLVM 和 xwin sysroot。可以用仓库脚�
 - `./steel msvc-cross`：用 Linux host 上的 `clang-cl + lld-link + xwin` 构建 Windows x64 MSVC ABI 主工程和 `app`
 - `./steel motor-test`：构建并运行固定现场参数的 `steel_test`
 - `./steel clean`：删除 `.build/`
-- `./steel clean-legacy`：删除历史遗留的 `build*`、`app/build*` 目录
 
-`./steel native` 会运行注册到 CTest 的主工程测试；当前 `steel_test` 是硬件测试，依赖默认设备可达。如果只想跑非硬件测试，可以手动执行：
-
-```bash
-cmake --preset native
-cmake --build --preset native
-ctest --test-dir .build/native --output-on-failure -LE hardware
-```
+`./steel native` 会运行注册到 CTest 的主工程测试，其中 `steel_test` 是硬件测试，依赖默认设备可达；无设备时的命令见[测试](#测试)。
 
 ## 产物位置
 
@@ -168,15 +160,7 @@ cmake -S . -B ../.build/app-native -G Ninja \
 
 ## 交叉编译
 
-最简单的方式是直接用脚本：
-
-```bash
-./steel arm64
-./steel win
-./steel msvc-cross
-```
-
-这些命令都会先构建主工程并 stage 对应平台 SDK，然后构建 `app`，验证外部消费工程可以链接这些动态库。
+`./steel arm64`、`./steel win`、`./steel msvc-cross` 会先构建主工程并 stage 对应平台 SDK，然后构建 `app`，验证外部消费工程可以链接这些动态库；`./steel msvc-cross` 在缺少工具链时自动运行 `scripts/setup_windows_msvc_cross_toolchain.sh`。下面是等价的手动 preset。
 
 ### Linux ARM64
 
@@ -206,13 +190,7 @@ SDK 会 stage 到 `app/sdk/windows-x86_64-mingw/`，`app` 可执行程序在 `.b
 
 ### Windows x64 MSVC ABI from Linux
 
-先准备工具链：
-
-```bash
-./scripts/setup_windows_msvc_cross_toolchain.sh
-```
-
-然后构建：
+手动构建前先按[依赖](#依赖)准备 LLVM 与 xwin sysroot：
 
 ```bash
 cmake --preset win-msvc-cross
@@ -323,14 +301,7 @@ cmake --build --preset native
 ctest --test-dir .build/native --output-on-failure -LE hardware
 ```
 
-`app` smoke test：
-
-```bash
-cd app
-cmake --preset native
-cmake --build --preset native
-ctest --preset native --output-on-failure
-```
+`app` smoke test 见 [app 独立构建](#app-独立构建)。
 
 真实电机硬件入口：
 
@@ -347,15 +318,6 @@ ctest --preset native --output-on-failure
 - 超时：`1000ms`
 
 这个入口会直接构造 `Motor(ip, port, device_port)` 并执行 `set_speed(0)`、`set_speed(300)`、`set_speed(0)`，适合现场固定设备验收。
-
-## 清理
-
-```bash
-./steel clean
-./steel clean-legacy
-```
-
-`./steel clean` 删除统一的 `.build/`。`./steel clean-legacy` 删除旧的 `build*`、`app/build*` 目录。
 
 ## 备注
 
