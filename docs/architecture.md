@@ -20,8 +20,8 @@ Industrial Foundation 提供设备通信抽象和 Motor/Mirobot 公共 SDK。主
 ## 消费方与边界
 
 - **Industrial-Apps** 是唯一消费方，且是可选的构建期依赖：只有编译的 Algorithm 调用 `Motor`/`Mirobot` 时，
-  Apps 才解析 staged SDK（环境变量 `STEEL_SDK_ROOT`，`build.py` 的
-  `probe_steel_sdk` 默认取同级 `Industrial-Foundation/app/sdk/linux-x86_64`）。因此 `app/sdk/<platform-tag>/{include,lib}`
+  Apps 才解析 staged SDK（环境变量 `STEEL_SDK_ROOT`，Apps `engineering/build.py` 的 `ensure_steel_sdk`
+  与 `dependencies.py` 的 `probe_steel_sdk` 默认取同级 `Industrial-Foundation/app/sdk/linux-x86_64`）。因此 `app/sdk/<platform-tag>/{include,lib}`
   的布局是对 Apps 的合同。
 - **Industrial-Runtime 不链接、不消费本项目。** Softbus 的 `src/runtime/io/` 独立实现 RS485/TCP adapter，
   只把 `IoRequestState` 的八个数值（`Unknown`、`Accepted`、`Completed`、`Timeout`、`DeadlineMissed`、

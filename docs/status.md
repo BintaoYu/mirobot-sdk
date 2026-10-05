@@ -8,7 +8,7 @@
 - `common` 提供 event-driven `IoAdapterClient` SDK（stable request ID、accepted/terminal callback、bounded sync
   wrapper、绝对 monotonic deadline、typed `IoError`/request state）；`TcpClientIoAdapter`/`Rs485IoAdapter`
   复用现有 TCP/serial primitive。
-- 自 2026-09-18 起冻结，作为 Industrial-Apps 的可选构建期依赖；Softbus 不消费本项目（见
+- 自 2026-09-18 起冻结，作为 Industrial-Apps 的可选构建期依赖；Runtime/Softbus 不链接本项目（见
   [architecture.md](architecture.md)「消费方与边界」）。未完成项见 [plan.md](plan.md)。
 
 ## 最近验证
