@@ -24,3 +24,5 @@ Recent history uses short subjects such as `tcp_comm`, `v2.0`, and date tags. Ke
 Update `README.md` for user commands, `docs/architecture.md` for API/module
 boundaries, `docs/plan.md` for ordered remaining work, and `docs/status.md` for
 completed capability and verification changes. Do not create a parallel roadmap.
+
+开工前查对应status、已有源码/测试与证据身份；已完成的同身份成果直接复用，缺数据只补实验。实验材料统一进入上级 `experiments/`，不得创建 `.planning/`；placement/成本校准实验不再支持。
