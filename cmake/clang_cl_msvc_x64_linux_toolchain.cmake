@@ -1,4 +1,4 @@
-# clang-cl-msvc-x64-linux-toolchain.cmake
+# clang_cl_msvc_x64_linux_toolchain.cmake
 #
 # Cross-compiles Windows x64 binaries with the MSVC ABI from a Linux host.
 # Prerequisites:
@@ -8,7 +8,7 @@
 #
 # Use with a host generator such as Ninja:
 #   cmake -S . -B build-msvc-cross -G Ninja \
-#     -DCMAKE_TOOLCHAIN_FILE=cmake/clang-cl-msvc-x64-linux-toolchain.cmake
+#     -DCMAKE_TOOLCHAIN_FILE=cmake/clang_cl_msvc_x64_linux_toolchain.cmake
 
 set(CMAKE_SYSTEM_NAME Windows)
 set(CMAKE_SYSTEM_PROCESSOR x86_64)

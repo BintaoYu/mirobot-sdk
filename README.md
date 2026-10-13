@@ -1,6 +1,6 @@
-# Industrial Foundation
+# Mirobot SDK
 
-Industrial Foundation（原 Steel）是一个基于 CMake 的 C++ 底层动态链接库项目。仓库会构建三个共享库：
+Mirobot SDK（原 Industrial Foundation / Steel）是一个基于 CMake 的 C++ 底层动态链接库项目。仓库会构建三个共享库：
 
 - `common`：通信抽象和传输实现，包括 `DeviceSession`、`SerialComm`、`TcpComm`、`TcpServerComm`、`UdpComm`、`SharedUdpComm`，以及 I/O Adapter SDK（`io_adapter.h`）
 - `motor`：电机控制库
@@ -8,9 +8,18 @@ Industrial Foundation（原 Steel）是一个基于 CMake 的 C++ 底层动态�
 
 主工程构建完成后，会把动态库和公开头文件按目标平台 stage 到 `app/sdk/<platform-tag>/`。`app/` 是独立的 SDK 消费工程，只依赖 stage 出来的头文件和库，不直接引用主工程源码。
 
-本项目自 2026-09-18 起冻结，是 Industrial-Apps 的可选构建期依赖；Industrial-Runtime 不链接本项目，只镜像 `IoRequestState` 数值（见 [架构](docs/architecture.md)「消费方与边界」）。
+本项目自 2026-09-18 起冻结，是 apps 的可选构建期依赖；runtime 不链接本项目，只镜像 `IoRequestState` 数值（见 [架构](docs/architecture.md)「消费方与边界」）。
 
 项目文档入口：[架构](docs/architecture.md)、[计划](docs/plan.md)、[状态](docs/status.md)、[agent 规则](AGENTS.md)。
+
+## 独立获取
+
+```bash
+git clone https://github.com/BintaoYu/mirobot-sdk.git
+cd mirobot-sdk
+```
+
+本仓库公开且可独立构建；在完整平台中作为 `mirobot-sdk/` 子模块使用。
 
 ## 目录结构
 
@@ -211,7 +220,7 @@ SDK 会 stage 到 `app/sdk/windows-x86_64-msvc/`，`app` 可执行程序在 `.bu
 
 ```bash
 cmake -S . -B .build/win-msvc -G Ninja \
-  -DCMAKE_TOOLCHAIN_FILE=cmake/msvc-cl-x64-toolchain.cmake
+  -DCMAKE_TOOLCHAIN_FILE=cmake/msvc_cl_x64_toolchain.cmake
 cmake --build .build/win-msvc
 ```
 

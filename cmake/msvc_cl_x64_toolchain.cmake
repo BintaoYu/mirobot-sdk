@@ -1,9 +1,9 @@
-# msvc-cl-x64-toolchain.cmake
+# msvc_cl_x64_toolchain.cmake
 #
 # Usage:
 # 1. Open an MSVC x64 developer shell, or run vcvars64.bat first.
 # 2. Configure with a generator that can drive cl.exe, for example Ninja:
-#    cmake -S . -B build-msvc -G Ninja -DCMAKE_TOOLCHAIN_FILE=cmake/msvc-cl-x64-toolchain.cmake
+#    cmake -S . -B build-msvc -G Ninja -DCMAKE_TOOLCHAIN_FILE=cmake/msvc_cl_x64_toolchain.cmake
 
 set(CMAKE_SYSTEM_NAME Windows)
 set(CMAKE_SYSTEM_PROCESSOR x86_64)

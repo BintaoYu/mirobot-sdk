@@ -27,7 +27,7 @@
       "generator": "Ninja",
       "binaryDir": "${sourceDir}/../.build/app-win-mingw",
       "cacheVariables": {
-        "CMAKE_TOOLCHAIN_FILE": "${sourceDir}/../cmake/mingw-w64-x86_64_toolchain.cmake"
+        "CMAKE_TOOLCHAIN_FILE": "${sourceDir}/../cmake/mingw_w64_x86_64_toolchain.cmake"
       }
     },
     {
@@ -36,7 +36,7 @@
       "generator": "Ninja",
       "binaryDir": "${sourceDir}/../.build/app-win-msvc-cross",
       "cacheVariables": {
-        "CMAKE_TOOLCHAIN_FILE": "${sourceDir}/../cmake/clang-cl-msvc-x64-linux-toolchain.cmake"
+        "CMAKE_TOOLCHAIN_FILE": "${sourceDir}/../cmake/clang_cl_msvc_x64_linux_toolchain.cmake"
       }
     }
   ],

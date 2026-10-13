@@ -6,3 +6,14 @@ app/lib/
 app/sdk/
 .toolchains/
 .codex
+
+# Local editor, agent and checker state; each module is independently cloned.
+/.agents/
+/.claude/
+/.codex/
+/.idea/
+/.vscode/
+/.DS_Store
+/.pytest_cache/
+/node_modules/
+__pycache__/

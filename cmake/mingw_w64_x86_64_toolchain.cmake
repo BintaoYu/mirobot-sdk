@@ -1,4 +1,4 @@
-# mingw-w64-x86_64_toolchain.cmake
+# mingw_w64_x86_64_toolchain.cmake
 
 set(CMAKE_SYSTEM_NAME Windows)
 set(CMAKE_SYSTEM_PROCESSOR x86_64)
