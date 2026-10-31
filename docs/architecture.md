@@ -19,15 +19,11 @@ Mirobot SDK 提供设备通信抽象和 Motor / Mirobot 公共 SDK，保留既�
 
 ## 消费方与边界
 
-- **Apps** 是平台中的可选消费方，且是可选的构建期依赖：只有编译的 Algorithm 调用 `Motor`/`Mirobot` 时，
-  Apps 才解析 staged SDK（环境变量 `STEEL_SDK_ROOT`，Apps `engineering/build.py` 的 `ensure_steel_sdk`
-  与 `dependencies.py` 的 `probe_steel_sdk` 默认取同级 `mirobot-sdk/app/sdk/linux-x86_64`）。因此 `app/sdk/<platform-tag>/{include,lib}`
-  的布局是对 Apps 的合同。
-- **runtime 不链接、不消费本项目。** Softbus 的 `src/runtime/softbus/io/` 独立实现 RS485/TCP adapter，
-  只把 `IoRequestState` 的八个数值（`Unknown`、`Accepted`、`Completed`、`Timeout`、`DeadlineMissed`、
-  `TransportError`、`AdapterUnavailable`、`InvalidRequest`）镜像为 wire ABI（见
-  `runtime/src/runtime/softbus/io/public/softbus/io/io_types.h` 的注释），以保持独立可构建。改动本项目的
-  `IoRequestState` 数值时必须同步该文件。
+- **Apps** 是可选的构建期消费方：编译的 Algorithm 调用 `Motor`/`Mirobot` 时，消费方解析对应平台的 staged SDK。
+  `app/sdk/<platform-tag>/{include,lib}` 是公开分发布局，独立应用也按同一布局消费；消费方自身的依赖探测与安装配置由其维护。
+- **Runtime 与本 SDK 独立构建，不链接本 SDK。** 如消费方将 `IoRequestState` 映射到自己的 wire 协议，
+  应以本仓库公开头文件 [io_adapter.h](../common/include/io_adapter.h) 中的枚举为依据，并在该枚举变化时核对映射与兼容性。
+  SDK 文档不以消费方私有源码路径作为使用前提。
 - 设备 SDK 不负责 Apps lifecycle、Softbus 容器或共享内存通信；consumer 只能依赖公开头文件和 staged library。
 - 固定现场 IP/串口/电机命令只属于 `hardware` 测试或 commissioning，不进入默认无设备回归。
 - SDK ABI、timeout、错误结果与 cancellation 变化必须同时验证主工程和独立 `app` consumer。

@@ -11,7 +11,7 @@
 | 平台依赖 | Apps 的可选构建依赖，Runtime 不链接设备 SDK |
 
 `TcpClientIoAdapter` / `Rs485IoAdapter` 复用既有 TCP / serial 原语。
-自 2026-09-18 起冻结，消费边界见[架构](architecture.md#消费方与边界)，维护范围见[计划](plan.md)。
+当前没有新增功能开发计划，消费边界见[架构](architecture.md#消费方与边界)，维护范围见[计划](plan.md)。
 
 ## 文档同步
 
