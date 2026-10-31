@@ -23,10 +23,10 @@ Mirobot SDK 提供设备通信抽象和 Motor / Mirobot 公共 SDK，保留既�
   Apps 才解析 staged SDK（环境变量 `STEEL_SDK_ROOT`，Apps `engineering/build.py` 的 `ensure_steel_sdk`
   与 `dependencies.py` 的 `probe_steel_sdk` 默认取同级 `mirobot-sdk/app/sdk/linux-x86_64`）。因此 `app/sdk/<platform-tag>/{include,lib}`
   的布局是对 Apps 的合同。
-- **runtime 不链接、不消费本项目。** Softbus 的 `src/runtime/io/` 独立实现 RS485/TCP adapter，
+- **runtime 不链接、不消费本项目。** Softbus 的 `src/runtime/softbus/io/` 独立实现 RS485/TCP adapter，
   只把 `IoRequestState` 的八个数值（`Unknown`、`Accepted`、`Completed`、`Timeout`、`DeadlineMissed`、
   `TransportError`、`AdapterUnavailable`、`InvalidRequest`）镜像为 wire ABI（见
-  `runtime/src/runtime/io/public/softbus/io/io_types.h` 的注释），以保持独立可构建。改动本项目的
+  `runtime/src/runtime/softbus/io/public/softbus/io/io_types.h` 的注释），以保持独立可构建。改动本项目的
   `IoRequestState` 数值时必须同步该文件。
 - 设备 SDK 不负责 Apps lifecycle、Softbus 容器或共享内存通信；consumer 只能依赖公开头文件和 staged library。
 - 固定现场 IP/串口/电机命令只属于 `hardware` 测试或 commissioning，不进入默认无设备回归。
