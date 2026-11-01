@@ -2,7 +2,9 @@
 
 本文件适用于独立的公开 `mirobot-sdk` 仓库；在完整平台中同时遵循平台根规则。
 按任务查阅 [README](README.md)、[架构](docs/architecture.md)、[状态](docs/status.md)、[计划](docs/plan.md)和[构建指南](docs/building.md)。
-维护范围由当前任务及 plan/status 决定，不把历史“冻结”状态作为永久禁止开发的规则。
+维护范围由用户当前任务和后续明确要求决定；plan/status 只提供现状与待办，不构成执行授权，也不把历史“冻结”状态作为永久禁止开发的规则。
+
+默认不使用子 agent，由主 agent 完成开发、配置、文档、测试、修复和验收；仅在用户明确要求使用子 agent 或并行 agent 时分派。
 
 ## 模块与消费边界
 
@@ -28,4 +30,4 @@
 不在 AGENTS 记录临时冻结日期、最近提交风格或实验进度，不创建重复 roadmap。
 使用四空格缩进，保持既有格式与 include guard；源码文件使用 snake_case、普通文档使用 kebab-case，新类型 PascalCase，既有 API 保持兼容。
 公共头保持最小依赖，不新增 `using namespace std;`。
-检查并保护工作区；仅在已有授权内精确提交/推送本轮文件，使用 Conventional Commits，平台集成先推子仓库再更新父仓库引用。
+检查并保护工作区；仅在已有授权内精确提交/推送本轮文件，使用 Conventional Commits，提交授权不自动包含推送；发布平台集成时先推送子仓库并核对远端，再发布父仓库引用。

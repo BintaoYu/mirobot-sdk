@@ -13,11 +13,6 @@
 `TcpClientIoAdapter` / `Rs485IoAdapter` 复用既有 TCP / serial 原语。
 当前没有新增功能开发计划，消费边界见[架构](architecture.md#消费方与边界)，维护范围见[计划](plan.md)。
 
-## 文档同步
-
-2026-10-20补齐独立构建、SDK API和消费示例文档，核对本仓库链接与既有源码接口。
-本轮未修改设备SDK源码，也未重新运行现场设备或交叉编译测试；已完成的工程验证见下文。
-
 ## 最近验证
 
 2026-09-19：native Release、Ninja、`BUILD_TESTING=ON` 构建，`ctest -LE hardware` 8/8 通过：
