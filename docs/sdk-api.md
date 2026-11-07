@@ -79,7 +79,7 @@ async callback 先收到 `Accepted`，随后收到一次 terminal response。ter
 ## 备注
 
 - Linux 串口常见路径为 `/dev/ttyUSB0` 或 `/dev/ttyACM0`
-- Windows `COM10` 及以上通常写成 `\\\\.\\COM10`
+- Windows `COM10` 及以上的设备路径为 `\\.\COM10`；C++ 字符串字面量写为 `"\\\\.\\COM10"`
 - Windows SDK stage 目录按工具链区分，MinGW 和 MSVC ABI 不会互相覆盖
 - `TcpComm` 是普通连接对象，不使用全局单例
 - `TcpServerComm` 当前是单监听 socket + 单客户端连接模型；如需切换客户端，先调用 `disconnectClient()`
