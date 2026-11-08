@@ -5,13 +5,13 @@
 | 方面 | 范围 |
 | --- | --- |
 | 库与 stage | `common`、`motor`、`mirobot` 共享库；头文件和库在 `app/sdk/<platform-tag>/` |
-| 构建目标 | 本机、Linux ARM64、Windows x64 MinGW、Linux-hosted MSVC ABI |
+| 构建配置 | 本机、Linux ARM64、Windows x64 MinGW、Linux-hosted MSVC ABI |
 | 独立消费 | `app/` 构建示例与 SDK smoke |
 | I/O Adapter | 稳定 request ID、Accepted / terminal 回调、有界同步包装、monotonic 绝对 deadline 和 typed 错误 |
 | 平台依赖 | Apps 的可选构建依赖，Runtime 不链接设备 SDK |
 
 `TcpClientIoAdapter` / `Rs485IoAdapter` 复用既有 TCP / serial 原语。
-当前没有新增功能开发计划，消费边界见[架构](architecture.md#消费方与边界)，维护范围见[计划](plan.md)。
+构建配置的存在不代表目标设备已验收。模块化当前仅有设计，消费边界见[架构](architecture.md#消费方与边界)，维护范围见[计划](plan.md)。
 
 ## 最近验证
 
