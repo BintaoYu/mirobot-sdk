@@ -4,8 +4,6 @@
 按任务查阅 [README](README.md)、[架构](docs/architecture.md)、[状态](docs/status.md)、[计划](docs/plan.md)和[构建指南](docs/building.md)。
 维护范围由用户当前任务和后续明确要求决定；plan/status 只提供现状与待办，不构成执行授权，也不把历史“冻结”状态作为永久禁止开发的规则。
 
-默认不使用子 agent，由主 agent 完成开发、配置、文档、测试、修复和验收；仅在用户明确要求使用子 agent 或并行 agent 时分派。
-
 ## 模块与消费边界
 
 - `common/include`、`common/src` 承载通信抽象、会话和 I/O Adapter；`libs/motor`、`libs/mirobot` 承载设备接口。公共头放在所属模块，避免暴露私有实现。
@@ -18,7 +16,7 @@
 ## 构建与验证
 
 - 当前构建入口见 README 与 `./steel`；新构建目录位于 `.build/`。按目标平台选择工具链，不把交叉编译通过写成目标设备运行通过。
-- 无硬件验证使用 README 的 CMake 流程及 `ctest --test-dir .build/native --output-on-failure -LE hardware`。`./steel native` 包含硬件测试，不能作为默认离线验证快捷方式。
+- 无硬件验证使用 [README 的无设备流程](README.md#首次构建无设备路径)，排除 hardware 标签。`./steel native` 包含硬件测试，不能作为默认离线验证快捷方式。
 - 协议/通信改动验证受影响路径；公共接口、安装或 stage 改动同时验证独立 `app` consumer，并选择受影响的 native/ARM64/Windows 目标。
 - 工具链或目标机器不可用时明确报告未运行范围，不为文档改动或不受影响目标重复执行全量交叉构建。
 - 硬件测试明确设备、地址、动作和停止责任，按用户有效授权执行；默认单元/回归路径不发送真实运动命令。
@@ -26,10 +24,10 @@
 
 ## 文档、风格与提交
 
+现行文档直接替换过时状态、计划和过程流水，由 Git 历史追溯。清理过时实验数据前核对当前使用依赖，保留有效来源、完整分母与必要复算输入。
+
 使用和构建入口更新 README/building，接口与职责更新 sdk-api/architecture，剩余工作更新 plan，验证事实更新 status。
 不在 AGENTS 记录临时冻结日期、最近提交风格或实验进度，不创建重复 roadmap。
 使用四空格缩进，保持既有格式与 include guard；源码文件使用 snake_case、普通文档使用 kebab-case，新类型 PascalCase，既有 API 保持兼容。
 公共头保持最小依赖，不新增 `using namespace std;`。
 检查并保护工作区；仅在已有授权内精确提交/推送本轮文件，使用 Conventional Commits，提交授权不自动包含推送；发布平台集成时先推送子仓库并核对远端，再发布父仓库引用。
-
-现行文档只维护最新有效状态，直接替换过时状态/计划和过程流水；被替代说明由Git历史追溯。过时实验数据在核对当前使用依赖后及时整批清理，仍支撑有效结论的来源与完整分母保持完整。

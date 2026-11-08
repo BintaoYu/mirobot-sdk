@@ -86,6 +86,7 @@ IP、端口和设备号应改为实际配置。同步调用有超时，失败会
 | [API 与示例](docs/sdk-api.md) | TCP / UDP、会话注入、Motor / Mirobot、I/O Adapter |
 | [架构](docs/architecture.md) | 模块、SDK 消费方式和平台边界 |
 | [状态](docs/status.md)、[计划](docs/plan.md) | 最近验证、适用范围和剩余工作 |
+| [协作规则](AGENTS.md) | 开发、独立消费、硬件操作与交付边界 |
 | `common/` | 通信抽象、传输、DeviceSession 与 I/O Adapter |
 | `libs/` | Motor / Mirobot 实现 |
 | `app/` | 独立 SDK 消费工程与示例 |

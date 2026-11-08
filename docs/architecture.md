@@ -28,6 +28,29 @@ Mirobot SDK 提供设备通信抽象和 Motor / Mirobot 公共 SDK，保留既�
 - 固定现场 IP/串口/电机命令只属于 `hardware` 测试或 commissioning，不进入默认无设备回归。
 - SDK ABI、timeout、错误结果与 cancellation 变化必须同时验证主工程和独立 `app` consumer。
 
+## 模块边界与编译组合（设计）
+
+目标是通信、会话、异步适配和设备接口可分别开发与测试，消费者按所需能力组合。
+当前仍由 `common` 聚合通信/会话/I/O Adapter，`motor`、`mirobot` 分别构建设备库；以下为职责设计，
+尚未提供新的拆分库、CMake 选择项或分发格式。
+
+| 职责单元 | 接口与依赖边界 | 独立验证与扩展位置 |
+| --- | --- | --- |
+| 通信合同与会话 | `CommInterface` 与 `DeviceSession` 表达有界收发、设备前缀、等待及错误；不依赖具体设备类 | 协议会话使用 fake transport；平台/传输实现通过公开通信合同接入 |
+| 具体通信与平台适配 | TCP、UDP、共享 UDP、server 和串口维护所属连接/句柄 | 按 OS 与传输分别验证连接、超时和退出；原生句柄保留在适配实现中 |
+| I/O Adapter | 请求身份、Accepted/terminal、deadline、容量与取消/清理 | 通过通信适配及受控 worker 组合，不反向依赖 Motor/Mirobot 或平台 Runtime |
+| Motor 与 Mirobot | 各自设备命令、解析和错误，通过会话或通信接口消费传输 | 设备合同测试用隔离通信夹具；实体设备验收单独进行；新增设备库不要求修改已有设备实现 |
+| 构建与 SDK stage | 选择实现、输出公开头/库及配套链接依赖 | 保留现有平台 tag 和 staged 独立消费；选择项及拆分粒度由实际消费需求确定 |
+| app 与示例 | 公共 SDK 消费者，不作为库的反向依赖 | 从 staged SDK 构建，按所需设备库组合；无设备 smoke 与现场动作分别组织 |
+
+设备对象可以继续提供兼容的便捷构造，默认会话由受控装配创建；它与显式注入会话共享协议实现，
+不能在每个设备类中复制 socket/串口控制。接口与实现分层不改变已发布方法、错误枚举、请求终态或同步等待语义。
+
+后续若拆分 `common` 或增加按设备/传输选择，须同时核对共享 UDP 的进程内共享状态、线程/句柄所有权、
+静态或动态链接依赖和 stage 内容，确保跨库组合仍复用同一会话责任。现有 target、库名、头文件路径和已发布 ABI
+在给出版本化迁移前保持兼容，不将逻辑划界写成独立构建已交付。
+候选审计与验证见[计划](plan.md)，现有命令和资格见[构建指南](building.md)及[状态](status.md)。
+
 ## I/O Adapter SDK
 
 `common/include/io_adapter.h` 提供 `IoAdapterClient`：`io_request_async(adapter_key, payload, deadline_ns)`
