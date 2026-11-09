@@ -84,4 +84,4 @@ async callback 先收到 `Accepted`，随后收到一次 terminal response。ter
 - `TcpComm` 是普通连接对象，不使用全局单例
 - `TcpServerComm` 当前是单监听 socket + 单客户端连接模型；如需切换客户端，先调用 `disconnectClient()`
 
-相关资料：[README](../README.md) · [架构](architecture.md) · [验证状态](status.md)。
+相关资料：[README](../README.md)、[架构](architecture.md)、[验证状态](status.md)。

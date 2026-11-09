@@ -224,4 +224,4 @@ ctest --test-dir .build/native --output-on-failure -LE hardware
 这个入口会直接构造 `Motor(ip, port, device_port)` 并执行 `set_speed(0)`、`set_speed(300)`、`set_speed(0)`，适合现场固定设备验收。
 
 
-相关资料：[API 与示例](sdk-api.md) · [架构](architecture.md) · [验证状态](status.md)。
+相关资料：[API 与示例](sdk-api.md)、[架构](architecture.md)、[验证状态](status.md)。
