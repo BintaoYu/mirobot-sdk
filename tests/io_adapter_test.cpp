@@ -60,6 +60,7 @@ public:
         }
         requests_[request.request_id] = request;
         completions_[request.request_id] = std::move(completion);
+        submitted_.notify_all();
         return IoError::none();
     }
 
@@ -116,9 +117,15 @@ public:
         return requests_.at(request_id);
     }
 
+    bool wait_for_request(IoRequestId request_id) {
+        std::unique_lock<std::mutex> lock(mutex_);
+        return submitted_.wait_for(lock, 1s, [&] { return requests_.count(request_id) != 0; });
+    }
+
 private:
     IoAdapterKey key_;
     mutable std::mutex mutex_;
+    std::condition_variable submitted_;
     std::unordered_map<IoRequestId, IoRequest> requests_;
     std::unordered_map<IoRequestId, CompletionHandler> completions_;
     std::vector<IoRequestId> cancelled_;
@@ -365,9 +372,9 @@ void synchronous_wrapper_returns_terminal_response() {
 
     IoResponse response;
     std::thread completer([&]() {
-        while (client.pending_request_count() == 0) {
-            std::this_thread::yield();
-        }
+        // Pending registration precedes backend submission. Synchronize with
+        // the fake's actual request receipt, not the client's earlier count.
+        if (!backend->wait_for_request(1)) return;
         const IoRequestId request_id = backend->request(1).request_id;
         backend->complete(request_id, IoRequestState::Completed, payload_from("SYNC-OK"));
     });

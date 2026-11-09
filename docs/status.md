@@ -15,8 +15,9 @@
 
 ## 最近验证
 
-2026-09-19：native Release、Ninja、`BUILD_TESTING=ON` 构建，`ctest -LE hardware` 8/8 通过：
+2026-11-09：native Release、Ninja、`BUILD_TESTING=ON` 构建，`ctest -LE hardware` 8/8 通过：
 motor、mirobot、device_session、io_adapter、tcp_comm、udp_comm、shared_udp_device、tcp_server_comm。
+完整 staged 头文件和动态库已用于外部 C++ 工程的原生编译验证，不执行设备动作。
 
 ## 验证边界
 
