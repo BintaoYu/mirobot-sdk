@@ -1,7 +1,7 @@
 # Mirobot SDK
 
 Mirobot SDK 是 C++17 设备通信库，提供通用通信会话以及 Motor / Mirobot 控制接口。
-主工程生成三个动态库：`common`、`motor`、`mirobot`，再把头文件和库整理到 `app/sdk/<platform-tag>/`，供独立应用使用。
+构建产物包括 `common`、`motor`、`mirobot` 三个动态库。头文件与库统一放在 `app/sdk/<platform-tag>/`，独立应用从该目录使用 SDK。
 
 本仓库可独立构建，也可作为 Industrial Platform 的 `mirobot-sdk/` 子模块使用。
 历史名称 Industrial Foundation / Steel 仍出现在 `steel` 脚本、CMake 配置及 SDK 标识中。

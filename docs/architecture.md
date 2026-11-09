@@ -1,4 +1,4 @@
-# Mirobot SDK Architecture
+# Mirobot SDK 架构
 
 ## 定位
 
@@ -19,9 +19,9 @@ Mirobot SDK 提供设备通信抽象和 Motor / Mirobot 公共 SDK，保留既�
 
 ## 消费方与边界
 
-- **Apps** 是可选的构建期消费方：编译的 Algorithm 调用 `Motor`/`Mirobot` 时，消费方解析对应平台的 staged SDK。
+- Apps 是可选的构建期消费方：编译的 Algorithm 调用 `Motor`/`Mirobot` 时，消费方解析对应平台的 staged SDK。
   `app/sdk/<platform-tag>/{include,lib}` 是公开分发布局，独立应用也按同一布局消费；消费方自身的依赖探测与安装配置由其维护。
-- **Runtime 与本 SDK 独立构建，不链接本 SDK。** 如消费方将 `IoRequestState` 映射到自己的 wire 协议，
+- Runtime 与本 SDK 独立构建，不链接本 SDK。如消费方将 `IoRequestState` 映射到自己的 wire 协议，
   应以本仓库公开头文件 [io_adapter.h](../common/include/io_adapter.h) 中的枚举为依据，并在该枚举变化时核对映射与兼容性。
   SDK 文档不以消费方私有源码路径作为使用前提。
 - 设备 SDK 不负责 Apps lifecycle、Softbus 容器或共享内存通信；consumer 只能依赖公开头文件和 staged library。
@@ -44,7 +44,7 @@ Mirobot SDK 提供设备通信抽象和 Motor / Mirobot 公共 SDK，保留既�
 | app 与示例 | 公共 SDK 消费者，不作为库的反向依赖 | 从 staged SDK 构建，按所需设备库组合；无设备 smoke 与现场动作分别组织 |
 
 设备对象可以继续提供兼容的便捷构造，默认会话由受控装配创建；它与显式注入会话共享协议实现，
-不能在每个设备类中复制 socket/串口控制。接口与实现分层不改变已发布方法、错误枚举、请求终态或同步等待语义。
+socket/串口控制由通信层统一实现。接口与实现分层保持已发布方法、错误枚举、请求终态和同步等待语义。
 
 后续若拆分 `common` 或增加按设备/传输选择，须同时核对共享 UDP 的进程内共享状态、线程/句柄所有权、
 静态或动态链接依赖和 stage 内容，确保跨库组合仍复用同一会话责任。现有 target、库名、头文件路径和已发布 ABI
