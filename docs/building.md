@@ -64,7 +64,7 @@ MSVC ABI 交叉编译还需要本地 LLVM 和 xwin sysroot。可以用仓库脚�
 
 ### SDK stage 产物
 
-主工程构建后会把给外部项目消费的 SDK stage 到 `app/sdk/<platform-tag>/`：
+主工程构建后，将供外部项目使用的 SDK 放入 `app/sdk/<platform-tag>/`：
 
 - `app/sdk/<platform-tag>/include/*.h`
 - `app/sdk/<platform-tag>/lib/*`
@@ -82,7 +82,7 @@ MSVC ABI 交叉编译还需要本地 LLVM 和 xwin sysroot。可以用仓库脚�
 - Windows MinGW：`libcommon.dll` + `libcommon.dll.a`，`libmotor.dll` + `libmotor.dll.a`，`libmirobot.dll` + `libmirobot.dll.a`
 - Windows MSVC ABI：`common.dll` + `common.lib`，`motor.dll` + `motor.lib`，`mirobot.dll` + `mirobot.lib`
 
-注意：`app/sdk/<platform-tag>/` 是 SDK stage 目录，不是 `app` 示例程序的输出目录。
+`app/sdk/<platform-tag>/` 保存 SDK 头文件和库；`app` 示例程序位于下述构建输出目录。
 
 ### app 构建产物
 
@@ -192,7 +192,7 @@ cmake -S . -B .build/win-msvc -G Ninja \
 cmake --build .build/win-msvc
 ```
 
-也可以直接使用 Visual Studio 生成器。关键是主工程和 `app` 使用同一套 MSVC 环境，并保持 SDK tag 为 `windows-x86_64-msvc`。
+也可以直接使用 Visual Studio 生成器。主工程和 `app` 须使用同一套 MSVC 环境，并保持 SDK tag 为 `windows-x86_64-msvc`。
 
 
 ## 测试

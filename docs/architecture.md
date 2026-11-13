@@ -2,9 +2,9 @@
 
 ## 定位
 
-Mirobot SDK 提供设备通信抽象和 Motor / Mirobot 公共 SDK，保留既有 Steel / Foundation 构建标识。主工程构建共享库并按目标平台 stage
-头文件与动态库到 `app/sdk/<platform-tag>/{include,lib}`；`app/` 是独立 consumer，只使用 staged SDK，不直接
-链接项目源码。
+Mirobot SDK 通过通信会话提供 Motor / Mirobot 控制接口，沿用 Steel / Foundation 构建标识。
+主工程按目标平台构建共享库，将公开头文件与动态库放入 `app/sdk/<platform-tag>/{include,lib}`。
+独立消费工程 `app/` 只使用该目录中的 SDK，不直接链接项目源码。
 
 ## 模块
 
@@ -47,17 +47,17 @@ Mirobot SDK 提供设备通信抽象和 Motor / Mirobot 公共 SDK，保留既�
 socket/串口控制由通信层统一实现。接口与实现分层保持已发布方法、错误枚举、请求终态和同步等待语义。
 
 后续若拆分 `common` 或增加按设备/传输选择，须同时核对共享 UDP 的进程内共享状态、线程/句柄所有权、
-静态或动态链接依赖和 stage 内容，确保跨库组合仍复用同一会话责任。现有 target、库名、头文件路径和已发布 ABI
+静态或动态链接依赖和 stage 内容，核对跨库组合是否仍由同一会话管理通信。现有 target、库名、头文件路径和已发布 ABI
 在给出版本化迁移前保持兼容，不将逻辑划界写成独立构建已交付。
 候选审计与验证见[计划](plan.md)，现有命令和资格见[构建指南](building.md)及[状态](status.md)。
 
 ## I/O Adapter SDK
 
 `common/include/io_adapter.h` 提供 `IoAdapterClient`：`io_request_async(adapter_key, payload, deadline_ns)`
-生成稳定的 `uint64_t` `IoRequestId`，completion callback 先交付 `Accepted`，再交付一次 terminal `IoResponse`；
-`io_request_sync(...)` 复用同一提交路径并以 bounded wait 返回 terminal state。`deadline_ns` 是 monotonic
-绝对时刻，`0` 表示不设置 adapter deadline；SDK 只做 deadline 协调，不提供物理设备时限保证。
+生成稳定的 `uint64_t` `IoRequestId`。完成回调先交付 `Accepted`，再交付一次表示终态的 `IoResponse`；
+`io_request_sync(...)` 复用同一提交路径，在有界等待后返回终态。`deadline_ns` 是单调时钟的
+绝对时刻，`0` 表示不设置适配器截止时间；SDK 只协调这一期限，不提供物理设备时限保证。
 
-`IoPayload` 默认做一次显式 copy，也可通过 `IoPayload::from_shared()` 复用已有 byte storage。
+`IoPayload` 默认显式复制一次，也可通过 `IoPayload::from_shared()` 复用已有字节存储。
 `CommInterfaceIoAdapter`、`TcpClientIoAdapter` 和 `Rs485IoAdapter` 复用现有 `CommInterface`/`TcpComm`/
 `SerialComm`，通过专用 worker callback 实现 async，不改变 `DeviceSession`、Motor 和 Mirobot 的同步注入路径。

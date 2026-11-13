@@ -1,6 +1,6 @@
 # Mirobot SDK API 与示例
 
-本文说明通信会话、设备对象和 I/O Adapter 的调用方式。请先按[构建指南](building.md)生成对应平台的 staged SDK。
+调用通信会话、设备对象或 I/O Adapter 前，先按[构建指南](building.md)生成对应平台的 staged SDK。
 
 ## Example 模板
 
@@ -52,7 +52,7 @@ Motor motor(session);
 
 `DeviceSession` 负责设备号前缀、原始发送和同步等待，默认同步等待超时为 1000ms。`Motor::set_speed()`、`Mirobot::set_speed()` 这类同步接口在超时后会抛出 `std::runtime_error`。
 
-I/O Adapter SDK 通过 `IoAdapterClient` 提供 event-driven request/response：
+I/O Adapter SDK 通过 `IoAdapterClient` 提供事件驱动的请求与响应：
 
 ```cpp
 IoAdapterClient client;
@@ -67,14 +67,14 @@ const IoRequestResult accepted = client.io_request_async(
 IoResponse completed = client.io_request_sync(adapter_key, payload, deadline_ns);
 ```
 
-async callback 先收到 `Accepted`，随后收到一次 terminal response。terminal state 明确区分
+异步回调先收到 `Accepted`，随后收到一次终态响应。终态区分
 `Completed`、`Timeout`、`DeadlineMissed`、`TransportError`、`AdapterUnavailable` 和
-`InvalidRequest`。`deadline_ns` 是 monotonic absolute deadline，只用于协调。使用共享 byte storage 时可用
-`IoPayload::from_shared()` 避免 SDK 边界的额外 payload copy；普通 `IoPayloadView` 会执行
-一次显式 SDK-owned copy。
+`InvalidRequest`。`deadline_ns` 是单调时钟的绝对截止时间，只用于协调。共享字节存储可通过
+`IoPayload::from_shared()` 复用，避免 SDK 边界的额外载荷复制；普通 `IoPayloadView` 会显式复制一次，
+由 SDK 持有该副本。
 
-`CommInterfaceIoAdapter`、`TcpClientIoAdapter` 和 `Rs485IoAdapter` 复用既有通信 primitive，
-而 `DeviceSession`、Motor 和 Mirobot 的 legacy synchronous/injected APIs 保持不变。
+`CommInterfaceIoAdapter`、`TcpClientIoAdapter` 和 `Rs485IoAdapter` 复用既有通信原语。
+`DeviceSession`、Motor 和 Mirobot 保持原有同步及会话注入接口。
 
 ## 备注
 
